@@ -1,0 +1,45 @@
+server:
+  port: 9081
+  servlet:
+    context-path: /travelagency
+
+spring:
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 11MB
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/bumerang
+#    username: travelagency
+#    password: Bum3r4n6*
+#    driverClassName: com.mysql.cj.jdbc.Driver
+
+
+#QA DB
+  datasource:
+    url: jdbc:mysql://containers-us-west-190.railway.app:6121/railway
+    username: root
+    password: 9Ik8IFqnVDmPcFuaFtne
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+
+#travelagency jwtsecret
+bumeran:
+  jwtSecret: ======================Bum3r4n6*===========================
+  jwtExpirationMs: 86400000
+
+
+#  mysql://root:9Ik8IFqnVDmPcFuaFtne@containers-us-west-190:
+#    railway:
+#      app:6121/railway:
+
+#  containers-us-west-190.railway.app
+
+#  6121
+
+#  9Ik8IFqnVDmPcFuaFtne
