@@ -127,6 +127,8 @@ public class OrdersServiceImpl implements OrdersService {
                                 .paidStatus(order.getPaymentStatus().getDescription())
                                 .contactEmail(order.getContactEmail())
                                 .contactPhoneNum(order.getContactPhoneNum())
+                                .emergencyContactPhone(order.getEmergencyContactPhone())
+                                .emergencyContact(order.getEmergencyContact())
                                 .hasFiles(hasFiles)
                                 .orderFileResponse(orderFileResponse)
                                 .build();

@@ -39,6 +39,10 @@ public class OrderResponse {
 
     private String contactEmail;
 
+    private String emergencyContactPhone;
+
+    private String emergencyContact;
+
     private boolean hasFiles;
 
     private OrderFileResponse orderFileResponse;

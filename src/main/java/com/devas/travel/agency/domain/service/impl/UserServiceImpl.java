@@ -42,6 +42,8 @@ public class UserServiceImpl implements UserService {
                         .roleId(user.getRole().getRoleId())
                         .role(user.getRole().getName())
                         .currentDate(Utils.getFormatDateSpanish())
+                                .branch("Norte")
+                                .city("CDMX")
                         .build()))
                 .orElseGet(() -> Either.left(Error.builder()
                         .message("User not found")

@@ -3,10 +3,12 @@ package com.devas.travel.agency.domain.service.impl;
 import com.devas.travel.agency.application.dto.ClientData;
 import com.devas.travel.agency.domain.service.EuromundoService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.StringTokenizer;
 
+@Service
 public class EuromundoServiceImpl implements EuromundoService {
     @Override
     public ClientData readEuromundoPDF(String text) {

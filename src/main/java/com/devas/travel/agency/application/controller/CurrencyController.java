@@ -1,5 +1,6 @@
 package com.devas.travel.agency.application.controller;
 
+import com.devas.travel.agency.application.dto.request.CurrencyRequest;
 import com.devas.travel.agency.application.dto.response.Response;
 import com.devas.travel.agency.domain.service.CurrencyService;
 import com.devas.travel.agency.infrastructure.utils.ControllerUtils;
@@ -19,17 +20,17 @@ public class CurrencyController {
 
     private final CurrencyService currencyService;
 
-    @PostMapping("/dollar/{dollarPrice}/{userId}")
-    public ResponseEntity<Response> creteDollar(@PathVariable String dollarPrice, @PathVariable int userId) {
-        return currencyService.createDollar(dollarPrice, userId).fold(
+    @PostMapping("/dollar")
+    public ResponseEntity<Response> creteDollar(@RequestBody CurrencyRequest request) {
+        return currencyService.createDollar(request.getPrice(), request.getUserId()).fold(
                 ControllerUtils::getResponseError,
                 ControllerUtils::getResponseSuccessOk);
 
     }
 
-    @PostMapping("/euro/{euroPrice}/{userId}")
-    public ResponseEntity<Response> creteEuro(@PathVariable String euroPrice, @PathVariable int userId) {
-        return currencyService.createEuro(euroPrice, userId).fold(
+    @PostMapping("/euro")
+    public ResponseEntity<Response> creteEuro(@RequestBody CurrencyRequest request) {
+        return currencyService.createEuro(request.getPrice(), request.getUserId()).fold(
                 ControllerUtils::getResponseError,
                 ControllerUtils::getResponseSuccessOk);
 

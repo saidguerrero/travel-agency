@@ -131,7 +131,7 @@ public class PDFServiceImpl implements PDFService {
 
         Paragraph prefaceBody9 = new Paragraph("Teléfono de Emergencia " + clientData.getEmergencyContactPhone(), smallBold);
         prefaceBody9.setAlignment(Element.ALIGN_LEFT);
-        addEmptyLine(prefaceBody9, 10);
+        addEmptyLine(prefaceBody9, 5);
 
         document.add(prefaceHeader1);
         document.add(prefaceHeader2);
