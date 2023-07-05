@@ -1,7 +1,6 @@
 package com.devas.travel.agency.domain.service.impl;
 
 import com.devas.travel.agency.application.dto.ClientData;
-import com.devas.travel.agency.domain.model.Orders;
 import com.devas.travel.agency.domain.service.OrdersService;
 import com.devas.travel.agency.domain.service.PDFService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
@@ -11,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 
 @Slf4j
@@ -163,11 +164,19 @@ public class PDFServiceImpl implements PDFService {
 
     private void addTermsAndConditions(Document document, PdfWriter docWriter) {
         // Load existing PDF
-        PdfReader reader = null;
+        PdfReader reader;
         try {
-            File file = new File("/Users/said.guerrero/Documents/BUMERAN/terms-conditions.pdf");
-            InputStream templateInputStream = new FileInputStream(file);
-            reader = new PdfReader(templateInputStream);
+            // Ruta relativa del archivo PDF en resources/static
+            String pdfPath = "static/terms-conditions.pdf";
+            //File file = new File("/Users/said.guerrero/Documents/BUMERAN/terms-conditions.pdf");
+            ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
+            InputStream templateInputStream = classLoader.getResourceAsStream(pdfPath);
+
+            if (templateInputStream != null) {
+                reader = new PdfReader(templateInputStream);
+            } else {
+                throw new RuntimeException("Error while loading PDF template");
+            }
 
         } catch (IOException e) {
             throw new RuntimeException("Error while loading PDF template", e);
