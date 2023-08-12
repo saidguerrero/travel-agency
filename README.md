@@ -1,3 +1,3 @@
 # travel-agency
 
-web services in Java
+API rest services in Java
