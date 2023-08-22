@@ -34,7 +34,7 @@ public class PDFServiceImpl implements PDFService {
             var orderOpt = ordersService.createOrder(clientData);
 
             if (orderOpt.isLeft()) {
-                log.error("Error while generating PDF", orderOpt.getLeft());
+                log.error("Error while generating PDF");
                 return baos.toByteArray();
             }
             var order = orderOpt.get();
@@ -61,7 +61,7 @@ public class PDFServiceImpl implements PDFService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         var clientData = ordersService.getOrderById(id);
         if (clientData.isLeft()) {
-            log.error("Error while generating PDF", clientData.getLeft());
+            log.error("Error while generating PDF");
             return baos.toByteArray();
         }
         try {
@@ -151,7 +151,7 @@ public class PDFServiceImpl implements PDFService {
 
         PdfContentByte cb = docWriter.getDirectContent();
         Barcode128 barcode128 = new Barcode128();
-        barcode128.setCode("viajesbumeran");
+        barcode128.setCode(clientData.getReservationNumber());
         barcode128.setCodeType(Barcode.CODE128);
         Image code128Image = barcode128.createImageWithBarcode(cb, null, null);
         code128Image.scaleAbsolute(300, 150);

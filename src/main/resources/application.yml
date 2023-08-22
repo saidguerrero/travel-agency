@@ -18,8 +18,10 @@ spring:
 
 #QA DB
   datasource:
-    url: jdbc:mysql://containers-us-west-190.railway.app:6121/railway
-    username: root
+#    url: jdbc:mysql://containers-us-west-190.railway.app:6121/railway
+    url: jdbc:mysql://database-bumeran.c6omhk7yegm2.us-east-2.rds.amazonaws.com:3306/bumeran
+#    username: root
+    username: bumeran
     password: 9Ik8IFqnVDmPcFuaFtne
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
@@ -27,6 +29,9 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+
+  sendgrid:
+    api-key: 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
 
 #travelagency jwtsecret
 bumeran:
@@ -43,3 +48,9 @@ bumeran:
 #  6121
 
 #  9Ik8IFqnVDmPcFuaFtne
+
+  mail:
+    sender: 'bumeran.travels@gmail.com'
+    from-name: 'Viajes Bumeran'
+    send-grid-templates:
+      reset-password-id: 'd-7d80d0c386ca45088bd6fbb7946bc8d8'

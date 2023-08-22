@@ -11,4 +11,6 @@ public interface DollarRepository extends JpaRepository<Dollar, Integer> {
 
     Optional<Dollar> findById(int Id);
 
+    Optional<Dollar> findByActiveTrue();
+
 }

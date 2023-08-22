@@ -29,6 +29,14 @@ public class Utils {
         return new BigDecimal(number.replaceAll(",", ""));
     }
 
+    public static String bigDecimalToString(BigDecimal number) {
+        if (number == null) {
+            return "0";
+        }
+        return number.toString();
+
+    }
+
     public static String dateToString(Date date, String format) {
         if (date == null) {
             return "N/A";
@@ -63,6 +71,27 @@ public class Utils {
 
         // Formatear la fecha actual utilizando el formateador
         return fechaActual.format(formateador);
+
+    }
+
+    public static BigDecimal calculateSubtotal(BigDecimal total, BigDecimal taxRate) {
+        // Asegurarse de que los parámetros no sean nulos o negativos
+        if (total == null || taxRate == null || total.compareTo(BigDecimal.ZERO) < 0 || taxRate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Total y tasa de impuesto deben ser valores no nulos y no negativos.");
+        }
+
+        // Calcular el subtotal
+        BigDecimal taxAmount = total.multiply(taxRate);
+        return total.subtract(taxAmount);
+
+    }
+
+    public static BigDecimal calculateAmountPesos(BigDecimal amountRate, BigDecimal total) {
+      if (amountRate == null || total == null || amountRate.compareTo(BigDecimal.ZERO) < 0 || total.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Total y tipo de cambio deben ser valores no nulos y no negativos.");
+        }
+
+        return total.multiply(amountRate);
 
     }
 }

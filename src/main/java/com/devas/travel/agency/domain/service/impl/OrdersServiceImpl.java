@@ -12,10 +12,13 @@ import com.devas.travel.agency.infrastructure.utils.Utils;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,6 +58,7 @@ public class OrdersServiceImpl implements OrdersService {
             orders.setContactEmail(clientData.getContactEmail());
             orders.setContactPhoneNum(clientData.getContactPhoneNum());
             orders.setEmergencyContactPhone(clientData.getEmergencyContactPhone());
+            orders.setEmergencyContact(clientData.getEmergencyContact());
             orders.setActive(Boolean.TRUE);
             cityRepository.findByCityId(clientData.getSupplierId()).ifPresent(orders::setCityByCityId);
             branchRepository.findByBranchId(clientData.getBranchId()).ifPresent(orders::setBranchByBranchId);
@@ -64,6 +68,16 @@ public class OrdersServiceImpl implements OrdersService {
                 orders.setQuotaStatus(status);
                 orders.setPaymentStatus(status);
             });
+            orders.setSubtotal(Utils.calculateSubtotal(orders.getAmount(), new BigDecimal("0.16")));
+            orders.setExchange(clientData.getExchange());
+            if (!"MXN".equals(clientData.getExchange())) {
+                orders.setExchangeRate(getExchangeRate(clientData.getExchange()));
+
+            } else {
+                orders.setExchangeRate(new BigDecimal("1"));
+
+            }
+            orders.setAmountPesos(Utils.calculateAmountPesos(orders.getAmount(), orders.getExchangeRate()));
             ordersRepository.save(orders);
             return Either.right(orders);
 
@@ -77,62 +91,23 @@ public class OrdersServiceImpl implements OrdersService {
         }
     }
 
+    private BigDecimal getExchangeRate(String exchange) {
+        if ("USD".equals(exchange)) {
+            return Utils.stringToBigDecimal(currencyService.getDollar());
+
+        } else if ("EUR".equals(exchange)) {
+            return Utils.stringToBigDecimal(currencyService.getEuro());
+
+        } else {
+            return new BigDecimal("1");
+
+        }
+    }
+
     @Override
     public Either<Error, OrdersAndCurrencies> getAllOrders() {
         try {
-            List<OrderResponse> orders = ordersRepository.findAll()
-                    .stream()
-                    .map(order -> {
-                        boolean hasFiles = false;
-                        OrderFileResponse orderFileResponse = null;
-                        int idPayOrder = 0;
-                        int idGeneralData = 0;
-                        int idTermsAndConditions = 0;
-                        var orderFiles = orderFilesRepository.findByOrdersByOrderIdOrderId(order.getOrderId());
-
-                        if (!orderFiles.isEmpty()) {
-                            hasFiles = true;
-                            for (var orderFile : orderFiles) {
-                                if (orderFile.getTypeFileId() == PAY_ORDER_ID) {
-                                    idPayOrder = orderFile.getId().intValue();
-
-                                } else if (orderFile.getTypeFileId() == DATA_ID) {
-                                    idGeneralData = orderFile.getId().intValue();
-
-                                } else if (orderFile.getTypeFileId() == TERMS_AND_CONDITION_ID) {
-                                    idTermsAndConditions = orderFile.getId().intValue();
-
-                                }
-                            }
-                            orderFileResponse = OrderFileResponse.builder()
-                                    .idPayOrder(idPayOrder)
-                                    .idGeneralData(idGeneralData)
-                                    .idTermsAndConditions(idTermsAndConditions)
-                                    .build();
-                        }
-
-                        return OrderResponse.builder()
-                                .fullName(order.getFullName())
-                                .city(order.getCityByCityId().getDescription())
-                                .amount(Utils.addingCommasToBigDecimal(order.getAmount()))
-                                .branch(order.getBranchByBranchId().getDescription())
-                                .reservationNumber(order.getReservationNumber())
-                                .supplier(order.getSupplierBySupplierId().getDescription())
-                                .salesPerson(order.getSalesPerson().getFullName())
-                                .travelInfo(order.getTravelInfo())
-                                .orderDate(Utils.localDateTimeToString(order.getOrderDate(), Constants.FORMAT_DD_MM_YYYY))
-                                .id(order.getOrderId().intValue())
-                                .quotationSheet(Utils.leadZero(order.getOrderId()))
-                                .quoteStatus(order.getQuotaStatus().getDescription())
-                                .paidStatus(order.getPaymentStatus().getDescription())
-                                .contactEmail(order.getContactEmail())
-                                .contactPhoneNum(order.getContactPhoneNum())
-                                .emergencyContactPhone(order.getEmergencyContactPhone())
-                                .emergencyContact(order.getEmergencyContact())
-                                .hasFiles(hasFiles)
-                                .orderFileResponse(orderFileResponse)
-                                .build();
-                    }).collect(Collectors.toList());
+            List<OrderResponse> orders = getOrderAndCurrencies(ordersRepository.findAll());
 
             return Either.right(OrdersAndCurrencies.builder()
                     .orders(orders)
@@ -165,7 +140,7 @@ public class OrdersServiceImpl implements OrdersService {
                 .travelInfo(order.getTravelInfo())
                 .contactEmail(order.getContactEmail())
                 .contactPhoneNum(order.getContactPhoneNum())
-                .emergencyContact(order.getEmergencyContactPhone())
+                .emergencyContact(order.getEmergencyContact())
                 .emergencyContactPhone(order.getEmergencyContactPhone())
                 .build());
 
@@ -215,58 +190,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public Either<Error, OrdersAndCurrencies> getAllOrdersByUserId(int userId) {
         try {
-            List<OrderResponse> orders = ordersRepository.findAllBySalesPersonUserIdOrderByOrderIdDesc(userId)
-                    .stream()
-                    .map(order -> {
-                        boolean hasFiles = false;
-                        OrderFileResponse orderFileResponse = null;
-                        int idPayOrder = 0;
-                        int idGeneralData = 0;
-                        int idTermsAndConditions = 0;
-                        var orderFiles = orderFilesRepository.findByOrdersByOrderIdOrderId(order.getOrderId());
-
-                        if (!orderFiles.isEmpty()) {
-                            hasFiles = true;
-                            for (var orderFile : orderFiles) {
-                                if (orderFile.getTypeFileId() == PAY_ORDER_ID) {
-                                    idPayOrder = orderFile.getId().intValue();
-
-                                } else if (orderFile.getTypeFileId() == DATA_ID) {
-                                    idGeneralData = orderFile.getId().intValue();
-
-                                } else if (orderFile.getTypeFileId() == TERMS_AND_CONDITION_ID) {
-                                    idTermsAndConditions = orderFile.getId().intValue();
-
-                                }
-                            }
-                            orderFileResponse = OrderFileResponse.builder()
-                                    .idPayOrder(idPayOrder)
-                                    .idGeneralData(idGeneralData)
-                                    .idTermsAndConditions(idTermsAndConditions)
-                                    .build();
-                        }
-
-                        return OrderResponse.builder()
-                                .fullName(order.getFullName())
-                                .city(order.getCityByCityId().getDescription())
-                                .amount(Utils.addingCommasToBigDecimal(order.getAmount()))
-                                .branch(order.getBranchByBranchId().getDescription())
-                                .reservationNumber(order.getReservationNumber())
-                                .supplier(order.getSupplierBySupplierId().getDescription())
-                                .salesPerson(order.getSalesPerson().getFullName())
-                                .travelInfo(order.getTravelInfo())
-                                .orderDate(Utils.localDateTimeToString(order.getOrderDate(), Constants.FORMAT_DD_MM_YYYY))
-                                .id(order.getOrderId().intValue())
-                                .quotationSheet(Utils.leadZero(order.getOrderId()))
-                                .quoteStatus(order.getQuotaStatus().getDescription())
-                                .paidStatus(order.getPaymentStatus().getDescription())
-                                .contactEmail(order.getContactEmail())
-                                .contactPhoneNum(order.getContactPhoneNum())
-                                .hasFiles(hasFiles)
-                                .orderFileResponse(orderFileResponse)
-                                .build();
-                    }).collect(Collectors.toList());
-
+            List<OrderResponse> orders = getOrderAndCurrencies(ordersRepository.findAllBySalesPersonUserIdOrderByOrderIdDesc(userId));
             return Either.right(OrdersAndCurrencies.builder()
                     .orders(orders)
                     .dollar(currencyService.getDollar())
@@ -284,9 +208,73 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(int userId, int page, int size) {
-        var pages = ordersRepository.findBySalesPersonUserIdOrderByOrderIdDesc(userId, PageRequest.of(page, size));
-        List<OrderResponse> dataList = pages.stream()
+    public PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(String search, int userId, int page, int size) {
+        Page<Orders> pages;
+        if (userId == 0) {
+            if (StringUtils.isNotBlank(search)) {
+                pages = ordersRepository.findByReservationAndName(search, PageRequest.of(page - 1, size));
+
+            } else {
+                pages = ordersRepository.findOrderById(PageRequest.of(page - 1, size));
+
+            }
+        } else if (StringUtils.isNotBlank(search)) {
+            pages = ordersRepository.findByReservationAndNameByIdUser(search, userId, PageRequest.of(page - 1, size));
+
+        } else {
+            pages = ordersRepository.findOrderByIdUser(userId, PageRequest.of(page - 1, size));
+
+        }
+//        } else if (StringUtils.isNotBlank(search)) {
+//            pages = ordersRepository.findByReservationAndName(search, page, size);
+//        } else if (userId > 1 && StringUtils.isNotBlank(search)) {
+//            pages = ordersRepository.findByReservationAndNameByIdUser(search, userId, page, size);
+//        }
+//        else {
+//            pages = ordersRepository.findBySalesPersonUserIdOrderByOrderIdDesc(userId, null);
+//        }
+        List<OrderResponse> dataList = getOrderAndCurrencies(pages.getContent());
+
+        var orderAndConcurrencies = OrdersAndCurrencies.builder()
+                .orders(dataList)
+                .dollar(currencyService.getDollar())
+                .euro(currencyService.getEuro())
+                .build();
+
+        return PaginatedObjectDTO.<OrdersAndCurrencies>builder()
+                .data(List.of(orderAndConcurrencies))
+                .pageNumber(pages.getNumber() + 1)
+                .rowsOfPage(pages.getSize())
+                .total(pages.getTotalElements())
+                .build();
+
+    }
+
+    @Override
+    public Either<Error, OrdersAndCurrencies> getPageOrdersByWord(String word, int userId) {
+        List<Orders> orders = ordersRepository.findByReservationNumberLikeAndSalesPersonUserId(word, userId);
+        if (orders.isEmpty()) {
+            orders = ordersRepository.findByFullNameLikeAndSalesPersonUserId(word, userId);
+        }
+        if (orders.isEmpty()) {
+            return Either.left(Error.builder()
+                    .message("No se encontraron resultados")
+                    .httpStatus(HttpStatus.NOT_FOUND)
+                    .build());
+
+        } else {
+            List<OrderResponse> ordersConcurrencies = getOrderAndCurrencies(orders);
+
+            return Either.right(OrdersAndCurrencies.builder()
+                    .orders(ordersConcurrencies)
+                    .dollar(currencyService.getDollar())
+                    .euro(currencyService.getEuro())
+                    .build());
+        }
+    }
+
+    private List<OrderResponse> getOrderAndCurrencies(List<Orders> orders) {
+        return orders.stream()
                 .map(order -> {
                     boolean hasFiles = false;
                     OrderFileResponse orderFileResponse = null;
@@ -332,24 +320,11 @@ public class OrdersServiceImpl implements OrdersService {
                             .paidStatus(order.getPaymentStatus().getDescription())
                             .contactEmail(order.getContactEmail())
                             .contactPhoneNum(order.getContactPhoneNum())
+                            .emergencyContactPhone(order.getEmergencyContactPhone())
+                            .emergencyContact(order.getEmergencyContact())
                             .hasFiles(hasFiles)
                             .orderFileResponse(orderFileResponse)
                             .build();
-
                 }).collect(Collectors.toList());
-
-        var orderAndConcurrencies = OrdersAndCurrencies.builder()
-                .orders(dataList)
-                .dollar(currencyService.getDollar())
-                .euro(currencyService.getEuro())
-                .build();
-
-        return PaginatedObjectDTO.<OrdersAndCurrencies>builder()
-                .data(List.of(orderAndConcurrencies))
-                .pageNumber(pages.getNumber() + 1)
-                .rowsOfPage(pages.getSize())
-                .total(pages.getTotalElements())
-                .build();
-
     }
 }

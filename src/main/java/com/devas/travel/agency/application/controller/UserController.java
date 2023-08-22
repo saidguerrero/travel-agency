@@ -1,13 +1,14 @@
 package com.devas.travel.agency.application.controller;
 
 import com.devas.travel.agency.application.dto.request.AccountRequest;
-import com.devas.travel.agency.application.dto.request.UserRequest;
+import com.devas.travel.agency.application.dto.request.ResetPasswordRequest;
 import com.devas.travel.agency.application.dto.response.Response;
 import com.devas.travel.agency.domain.service.UserService;
 import com.devas.travel.agency.infrastructure.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,4 +57,32 @@ public class UserController {
                 ControllerUtils::getResponseSuccessOk
         );
     }
+
+    @PostMapping("/prepareResetPassword")
+    public ResponseEntity<Response> prepareResetPassword(@Param("email") String email ) {
+        log.info("prepare reset password - starting...");
+        return userService.prepareForResetPassword(email).fold(
+                ControllerUtils::getResponseError,
+                ControllerUtils::getResponseSuccessOk);
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<Response> resetPassword(@RequestBody ResetPasswordRequest request) {
+        log.info("reset password - starting...");
+        return userService.resetPassword(request).fold(
+                ControllerUtils::getResponseError,
+                ControllerUtils::getResponseSuccessOk);
+    }
+
+
+    @PostMapping("/updateUserPwd")
+    public ResponseEntity<Response> updateUser(@RequestBody ResetPasswordRequest usersRequest) {
+        log.info("Actualizar contraseña de usuario...");
+        return userService.updateUserPassword(usersRequest)
+                .fold(
+                        ControllerUtils::getResponseError,
+                        ControllerUtils::getResponseSuccessOk
+                );
+    }
+
 }

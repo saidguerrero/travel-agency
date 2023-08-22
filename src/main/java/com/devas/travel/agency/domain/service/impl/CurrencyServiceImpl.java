@@ -29,69 +29,59 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Override
     public Either<Error, String> createDollar(String dollarPrice, int userId) {
         try {
-            dollarRepository.findById(DOLLAR_ID).ifPresentOrElse(dollar -> {
-                        dollar.setLastPrice(dollar.getCurrentPrice());
-                        dollar.setCurrentPrice(Double.parseDouble(dollarPrice));
-                        dollar.setUpdateDate(LocalDateTime.now());
-                        dollar.setUserId(userId);
+            dollarRepository.findByActiveTrue()
+                    .map(dollar -> {
+                        dollar.setActive(Boolean.FALSE);
                         dollarRepository.save(dollar);
-                        log.info("actualizar dolar");
-                    },
-                    () -> {
-                        log.info("se crea dolar");
-                        Dollar newDollar = new Dollar();
-                        newDollar.setId(EURO_ID);
-                        newDollar.setCurrentPrice(Double.parseDouble(dollarPrice));
-                        newDollar.setCreateDate(LocalDateTime.now());
-                        newDollar.setActive(true);
-                        newDollar.setUserId(userId);
-                        dollarRepository.save(newDollar);
+                        return dollar;
                     });
 
+            log.info("se crea dolar");
+            Dollar newDollar = new Dollar();
+
+            newDollar.setCurrentPrice(Double.parseDouble(dollarPrice));
+            newDollar.setCreateDate(LocalDateTime.now());
+            newDollar.setActive(true);
+            newDollar.setUserId(userId);
+            dollarRepository.save(newDollar);
+            return Either.right("SUCCESS");
         } catch (NumberFormatException e) {
             return Either.left(Error.builder()
                     .message("El precio del dolar no es valido")
                     .build());
-
         }
-        return Either.right("SUCCESS");
-
     }
 
     @Override
     public Either<Error, String> createEuro(String euroPrice, int userId) {
         try {
-            euroRepository.findById(EURO_ID).ifPresentOrElse(euro -> {
-                        euro.setLastPrice(euro.getCurrentPrice());
-                        euro.setCurrentPrice(Double.parseDouble(euroPrice));
-                        euro.setUpdateDate(LocalDateTime.now());
-                        euro.setUserId(1);
+            euroRepository.findByActiveTrue()
+                    .map(euro -> {
+                        euro.setActive(Boolean.FALSE);
                         euroRepository.save(euro);
-                        log.info("actualizar euro");
-                    },
-                    () -> {
-                        log.info("se crea euro");
-                        Euro newEuro = new Euro();
-                        newEuro.setId(EURO_ID);
-                        newEuro.setCurrentPrice(Double.parseDouble(euroPrice));
-                        newEuro.setCreateDate(LocalDateTime.now());
-                        newEuro.setActive(true);
-                        newEuro.setUserId(1);
-                        euroRepository.save(newEuro);
+                        return euro;
                     });
+
+            log.info("se crea euro");
+            Euro newEuro = new Euro();
+
+            newEuro.setCurrentPrice(Double.parseDouble(euroPrice));
+            newEuro.setCreateDate(LocalDateTime.now());
+            newEuro.setActive(true);
+            newEuro.setUserId(userId);
+            euroRepository.save(newEuro);
             return Either.right("SUCCESS");
 
         } catch (NumberFormatException e) {
             return Either.left(Error.builder()
                     .message("El precio del euro no es valido")
                     .build());
-
         }
     }
 
     @Override
     public String getDollar() {
-        return dollarRepository.findById(DOLLAR_ID)
+        return dollarRepository.findByActiveTrue()
                 .map(dollar -> dollar.getCurrentPrice().toString())
                 .orElse("0");
 
@@ -99,7 +89,7 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     @Override
     public String getEuro() {
-        return euroRepository.findById(EURO_ID)
+        return euroRepository.findByActiveTrue()
                 .map(euro -> euro.getCurrentPrice().toString())
                 .orElse("0");
 

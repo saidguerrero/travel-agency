@@ -47,4 +47,6 @@ public class ClientData {
 
     private int salesPersonId;
 
+    private String exchange;
+
 }

@@ -48,6 +48,18 @@ public class Orders {
     @Column(name="active")
     private boolean active;
 
+    @Column(name="subtotal")
+    private BigDecimal subtotal;
+
+    @Column(name="exchange")
+    private String exchange;
+
+    @Column(name="exchange_rate")
+    private BigDecimal exchangeRate;
+
+    @Column(name="amount_pesos")
+    private BigDecimal amountPesos;
+
     @ManyToOne
     @JoinColumn(name = "supplierId", referencedColumnName = "supplier_id", nullable = false)
     private Supplier supplierBySupplierId;

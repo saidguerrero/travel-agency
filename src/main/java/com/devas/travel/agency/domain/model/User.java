@@ -37,6 +37,9 @@ public class User {
     @Column(name = "active")
     private boolean active;
 
+    @Column(name = "verification_code")
+    private String verificationCode;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "roleId", referencedColumnName = "role_id", nullable = false)
     private Role role;

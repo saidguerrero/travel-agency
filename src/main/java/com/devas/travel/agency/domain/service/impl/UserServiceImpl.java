@@ -1,10 +1,12 @@
 package com.devas.travel.agency.domain.service.impl;
 
 import com.devas.travel.agency.application.dto.request.AccountRequest;
+import com.devas.travel.agency.application.dto.request.ResetPasswordRequest;
 import com.devas.travel.agency.application.dto.response.Error;
 import com.devas.travel.agency.application.dto.response.UserResponse;
 import com.devas.travel.agency.domain.model.SalesPersonInfo;
 import com.devas.travel.agency.domain.model.User;
+import com.devas.travel.agency.domain.service.EmailService;
 import com.devas.travel.agency.domain.service.SalesPersonInfoService;
 import com.devas.travel.agency.domain.service.UserService;
 import com.devas.travel.agency.infrastructure.adapter.repository.RoleRepository;
@@ -13,6 +15,7 @@ import com.devas.travel.agency.infrastructure.utils.Utils;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,10 @@ public class UserServiceImpl implements UserService {
 
     private final SalesPersonInfoService salesPersonInfoService;
 
+    private final EmailService emailService;
+
+    private static final int RANDOM_LENGTH = 64;
+
     @Override
     public Either<Error, UserResponse> findByUserLogin(String userName) {
         return userRepository.findByUserLoginAndActiveTrue(userName)
@@ -42,8 +49,8 @@ public class UserServiceImpl implements UserService {
                         .roleId(user.getRole().getRoleId())
                         .role(user.getRole().getName())
                         .currentDate(Utils.getFormatDateSpanish())
-                                .branch("Norte")
-                                .city("CDMX")
+                        .branch("Norte")
+                        .city("CDMX")
                         .build()))
                 .orElseGet(() -> Either.left(Error.builder()
                         .message("User not found")
@@ -132,6 +139,74 @@ public class UserServiceImpl implements UserService {
                     .build());
 
         }
+    }
+
+    @Override
+    public Either<Error, String> prepareForResetPassword(String email) {
+        List<User> users = userRepository.findByEmail(email.toLowerCase());
+
+        if (users.isEmpty()) {
+            return Either.left(
+                    Error.builder()
+                            .message("Email no encontrado")
+                            .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .build()
+            );
+
+        } else {
+            users.stream()
+                    .findFirst()
+                    .ifPresent(user -> {
+                        String randomCode = RandomStringUtils.randomAlphanumeric(RANDOM_LENGTH);
+                        user.setVerificationCode(randomCode);
+                        userRepository.save(user);
+                        emailService.sendResetPasswordMail(user.getEmail(), user.getFullName(), randomCode);
+                    });
+            return Either.right("success");
+
+        }
+    }
+
+    @Override
+    public Either<Error, String> resetPassword(ResetPasswordRequest request) {
+        return userRepository.findByVerificationCode(request.getCode())
+                .<Either<Error, String>>map(user -> {
+                    user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+                    user.setVerificationCode(null);
+                    userRepository.save(user);
+                    // TODO: send email
+//                    sendEmailPasswordChanged(user);
+                    return Either.right("success");
+
+                })
+                .orElseGet(() -> Either.left(Error.builder()
+                        .message("Código de verificación no encontrado")
+                        .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .build()));
+
+    }
+
+    @Override
+    public Either<Error, String> updateUserPassword(ResetPasswordRequest request) {
+        try {
+            userRepository.findByEmail(request.getEmail().toLowerCase())
+                    .forEach(user -> {
+                        user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+                        userRepository.save(user);
+                    });
+            return Either.right("success");
+
+        } catch (Exception e) {
+            return Either.left(Error.builder()
+                    .message("Código de verificación no encontrado")
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
+    }
+
+    @Override
+    public Either<Error, String> updateUserMail(ResetPasswordRequest request) {
+        return null;
     }
 
 }
