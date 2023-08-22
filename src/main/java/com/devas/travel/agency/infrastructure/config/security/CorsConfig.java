@@ -13,13 +13,14 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry
+//                registry
                         // Enable cross-origin request handling for the specified path pattern.
                         // Exact path mapping URIs (such as "/admin") are supported as well as Ant-style path patterns (such as "/admin/**").
-                        .addMapping("/login")
-                        .allowedOrigins("http://localhost:3000/")
-                        .allowedMethods("POST")
-                        .exposedHeaders("*");
+//                        .addMapping("/login")
+//                        .allowedOrigins("http://localhost:3000/")
+//                        .allowedMethods("POST")
+//                        .exposedHeaders("*");
+
 
                 registry.addMapping("/api/v1/**")
                         .allowedOrigins("*")
