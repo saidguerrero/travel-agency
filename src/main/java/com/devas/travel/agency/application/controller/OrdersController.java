@@ -55,7 +55,7 @@ public class OrdersController {
 
     @Operation(summary = "Buscar cotizaciones",
             description = "Endpoint para buscar cotizaciones por vendor o por nombre del cliente o numero de reservacion , paginadas"
-            )
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Información encontrada o vacía"),
             @ApiResponse(responseCode = "500", description = "Error Interno del Servidor", content = @Content)
@@ -63,9 +63,10 @@ public class OrdersController {
     @GetMapping("/pageOrders")
     public ResponseEntity<Response> getPageOrders(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) int id, @RequestParam int page, @RequestParam int size) {
+            @RequestParam int id, @RequestParam int page, @RequestParam int size,
+            @RequestParam int roleId) {
         return ControllerUtils.getResponseSuccessOk(
-                ordersService.getPageOrdersByUserId(search, id, page, size));
+                ordersService.getPageOrdersByUserId(search, id, page, size, roleId));
 
     }
 

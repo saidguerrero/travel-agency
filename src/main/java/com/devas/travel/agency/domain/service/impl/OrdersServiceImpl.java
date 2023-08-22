@@ -208,9 +208,9 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
-    public PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(String search, int userId, int page, int size) {
+    public PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(String search, int userId, int page, int size, int roleId) {
         Page<Orders> pages;
-        if (userId == 0) {
+        if (roleId == 1  || roleId == 33) {
             if (StringUtils.isNotBlank(search)) {
                 pages = ordersRepository.findByReservationAndName(search, PageRequest.of(page - 1, size));
 

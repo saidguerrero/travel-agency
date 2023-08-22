@@ -21,7 +21,7 @@ public interface OrdersService {
 
     Either<Error, OrdersAndCurrencies> getAllOrdersByUserId(int userId);
 
-    PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(String search, int userId, int page, int size);
+    PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(String search, int userId, int page, int size, int roleId);
 
     Either<Error, OrdersAndCurrencies> getPageOrdersByWord(String word, int userId);
 

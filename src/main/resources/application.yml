@@ -9,20 +9,20 @@ spring:
       enabled: true
       max-file-size: 10MB
       max-request-size: 11MB
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/bumerang
-#    username: travelagency
-#    password: Bum3r4n6*
-#    driverClassName: com.mysql.cj.jdbc.Driver
+  #  datasource:
+  #    url: jdbc:mysql://localhost:3306/bumerang
+  #    username: travelagency
+  #    password: Bum3r4n6*
+  #    driverClassName: com.mysql.cj.jdbc.Driver
 
 
-#QA DB
+  #QA DB
   datasource:
-#    url: jdbc:mysql://containers-us-west-190.railway.app:6121/railway
-    url: ${datasource_url}
-#    username: root
-    username: ${user_name}
-    password: ${db_password}
+    #    url: jdbc:mysql://containers-us-west-190.railway.app:6121/railway
+    url: jdbc:mysql://database-bumeran.c6omhk7yegm2.us-east-2.rds.amazonaws.com:3306/bumeran
+    #    username: root
+    username: bumeran
+    password: 9Ik8IFqnVDmPcFuaFtne
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -39,15 +39,15 @@ bumeran:
   jwtExpirationMs: 86400000
 
 
-#  mysql://root:9Ik8IFqnVDmPcFuaFtne@containers-us-west-190:
-#    railway:
-#      app:6121/railway:
+  #  mysql://root:9Ik8IFqnVDmPcFuaFtne@containers-us-west-190:
+  #    railway:
+  #      app:6121/railway:
 
-#  containers-us-west-190.railway.app
+  #  containers-us-west-190.railway.app
 
-#  6121
+  #  6121
 
-#  9Ik8IFqnVDmPcFuaFtne
+  #  9Ik8IFqnVDmPcFuaFtne
 
   mail:
     sender: 'bumeran.travels@gmail.com'
