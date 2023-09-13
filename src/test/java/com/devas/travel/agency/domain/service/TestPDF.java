@@ -1,6 +1,7 @@
 package com.devas.travel.agency.domain.service;
 
 import com.devas.travel.agency.application.dto.ClientData;
+import com.devas.travel.agency.infrastructure.utils.Utils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -11,8 +12,9 @@ import java.util.StringTokenizer;
 public class TestPDF {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
-        readPDF();
+//        System.out.println("Hello World!");
+//        readPDF();
+        System.out.println(Utils.getFormatDateSpanish());
     }
 
     public static ClientData readPDF() {

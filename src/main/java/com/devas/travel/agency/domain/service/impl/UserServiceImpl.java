@@ -209,4 +209,24 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public Either<Error, List<UserResponse>> getUsersByEmail(String email) {
+        var items = userRepository.findByEmailContainingOrFullNameContaining(email, email);
+        if (items.isEmpty()) {
+            return Either.left(Error.builder()
+                    .message("email not found")
+                    .httpStatus(HttpStatus.NOT_FOUND)
+                    .build());
+
+        }
+        return Either.right(items.stream().map(user -> UserResponse.builder()
+                .userId(user.getUserId())
+                .login(user.getUserLogin())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .roleId(user.getRole().getRoleId())
+                .role(user.getRole().getName())
+                .build()).collect(Collectors.toList()));
+    }
+
 }

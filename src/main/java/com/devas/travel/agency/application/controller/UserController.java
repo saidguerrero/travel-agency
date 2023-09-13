@@ -85,4 +85,11 @@ public class UserController {
                 );
     }
 
+    @GetMapping("/usersByEmail/{email}")
+    public ResponseEntity<Response> getUsersByEmail(@PathVariable String email) {
+        return userService.getUsersByEmail(email).fold(
+                ControllerUtils::getResponseError,
+                ControllerUtils::getResponseSuccessOk
+        );
+    }
 }

@@ -42,9 +42,10 @@ public class WebSecurityConfig {
                 .requestMatchers("/swagger-ui/**",
                         "/swagger-ui.html",
                         "/swagger-resources/**",
-                        "/v3/api-docs/**",
-                        "/**").permitAll()
-                //  .requestMatchers("/api/v1/supplier").permitAll()
+                        "/v3/api-docs/**")
+//                        "/**")
+                .permitAll()
+                .requestMatchers("/api/v1/supplier").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

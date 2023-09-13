@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 public class Utils {
 
@@ -67,7 +68,7 @@ public class Utils {
         LocalDate fechaActual = LocalDate.now();
 
         // Crear un formateador de fecha personalizado
-        DateTimeFormatter formateador = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM");
+        DateTimeFormatter formateador = DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", new Locale("es", "ES"));
 
         // Formatear la fecha actual utilizando el formateador
         return fechaActual.format(formateador);

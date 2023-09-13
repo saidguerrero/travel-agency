@@ -26,11 +26,11 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             nativeQuery = true)
     Page<Orders> findOrderById( Pageable pageable);
 
-    @Query(value = "SELECT * FROM orders where supplier_id =:userid  ORDER BY order_id DESC LIMIT :#{#pageable.pageNumber}, :#{#pageable.pageSize} ",
+    @Query(value = "SELECT * FROM orders where sales_person_id =:userid  ORDER BY order_id DESC LIMIT :#{#pageable.pageNumber}, :#{#pageable.pageSize} ",
             nativeQuery = true)
     Page<Orders> findOrderByIdUser(int userid, Pageable pageable);
 
-    @Query(value = "SELECT * FROM orders WHERE (reservation_number LIKE %:search% OR full_name LIKE %:search% )  AND supplier_id =:userId ORDER BY order_id DESC" +
+    @Query(value = "SELECT * FROM orders WHERE (reservation_number LIKE %:search% OR full_name LIKE %:search% )  AND sales_person_id =:userId ORDER BY order_id DESC" +
             " LIMIT :#{#pageable.pageNumber}, :#{#pageable.pageSize} ",
             nativeQuery = true)
     Page<Orders> findByReservationAndNameByIdUser(String search, int userId, Pageable pageable);

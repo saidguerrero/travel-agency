@@ -3,6 +3,7 @@ package com.devas.travel.agency.domain.service.impl;
 import com.devas.travel.agency.application.dto.request.UploadFile;
 import com.devas.travel.agency.application.dto.response.Error;
 import com.devas.travel.agency.domain.model.OrderFiles;
+import com.devas.travel.agency.domain.service.S3Service;
 import com.devas.travel.agency.domain.service.UploadFilesService;
 import com.devas.travel.agency.infrastructure.adapter.repository.OrderFilesRepository;
 import com.devas.travel.agency.infrastructure.adapter.repository.OrdersRepository;
@@ -26,6 +27,8 @@ public class UploadFilesServiceImpl implements UploadFilesService {
 
     private final OrdersRepository orderRepository;
 
+    private final S3Service s3Service;
+
     @Override
     public Either<Error, String> saveUploadFile(int orderId, List<UploadFile> uploadFiles) {
         try {
@@ -38,7 +41,8 @@ public class UploadFilesServiceImpl implements UploadFilesService {
                 if (!uploadFile.getFile().isEmpty()) {
                     var base64String = uploadFile.getFile().get(0);
                     file = Base64.getDecoder().decode(base64String);
-                    filePath = writeUploadFile(file, uploadFile.getFileName(), orderId);
+//                    filePath = writeUploadFile(file, uploadFile.getFileName(), orderId);
+                    filePath = s3Service.uploadObject(file, uploadFile.getFileName(), orderId);
                 }
                 orderFiles.setFilePath(filePath);
                 orderFiles.setFileName(uploadFile.getFileName());
@@ -84,10 +88,11 @@ public class UploadFilesServiceImpl implements UploadFilesService {
             try {
                 var filePath = optional.get().getFilePath();
                 if (filePath != null && !filePath.equalsIgnoreCase("Error")) {
-                    File file = new File(filePath);
-                    return FileUtils.readFileToByteArray(file);
+                    //TODO: get from S3
+//                    File file = new File(filePath);
+//                    return FileUtils.readFileToByteArray(file);
+                   return s3Service.getFile(filePath);
                 }
-
             } catch (Exception e) {
                 log.error("Error: {}", e.getMessage());
             }

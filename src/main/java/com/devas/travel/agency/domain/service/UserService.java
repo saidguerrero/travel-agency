@@ -28,4 +28,6 @@ public interface UserService {
 
     Either<Error, String> updateUserMail(ResetPasswordRequest request);
 
+    Either<Error, List<UserResponse>> getUsersByEmail(String email);
+
 }

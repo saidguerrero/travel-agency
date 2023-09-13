@@ -24,6 +24,8 @@ spring:
     username: bumeran
     password: 9Ik8IFqnVDmPcFuaFtne
     driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+      maxLifeTime: 600000
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
@@ -31,7 +33,7 @@ spring:
       ddl-auto: none
 
   sendgrid:
-    api-key: xxxx
+    api-key: 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
 
 #travelagency jwtsecret
 bumeran:
@@ -54,3 +56,8 @@ bumeran:
     from-name: 'Viajes Bumeran'
     send-grid-templates:
       reset-password-id: 'd-7d80d0c386ca45088bd6fbb7946bc8d8'
+
+aws:
+  s3:
+    bucket:
+      name: mybumeranbucket-qa

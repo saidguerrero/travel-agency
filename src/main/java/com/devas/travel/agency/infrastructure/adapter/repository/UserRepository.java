@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByVerificationCode(String code);
 
+    List<User> findByEmailContainingOrFullNameContaining(String email, String name);
+
 }
