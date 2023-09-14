@@ -25,6 +25,7 @@ public class S3ServiceImpl implements S3Service {
 
     @Override
     public String uploadObject(byte[] bytes, String fileName, int orderId) {
+        log.info("Uploading file to S3 folder {}", orderId);
         try (S3Client s3Client = S3Client.builder().build()) {
             String key = String.valueOf(orderId) + "/" + fileName;
             PutObjectRequest request = PutObjectRequest.builder()
@@ -32,6 +33,7 @@ public class S3ServiceImpl implements S3Service {
                     .key(key)
                     .build();
             s3Client.putObject(request, RequestBody.fromByteBuffer(ByteBuffer.wrap(bytes)));
+            log.info("File uploaded successfully to S3");
             return key;
 
         }
@@ -40,12 +42,14 @@ public class S3ServiceImpl implements S3Service {
 
     @Override
     public byte[] getFile(String filePath) {
+        log.info("get file from S3 {}", filePath);
         try (S3Client s3Client = S3Client.builder().build()) {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
                     .key(filePath)
                     .build();
             ResponseBytes<GetObjectResponse> requestResponseBytes = s3Client.getObjectAsBytes(getObjectRequest);
+            log.info("File downloaded successfully from S3");
             return requestResponseBytes.asByteArray();
 
         }
