@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -56,7 +57,7 @@ public class UploadFilesServiceImpl implements UploadFilesService {
             return Either.right("Successfully");
 
         } catch (Exception e) {
-            log.error("Error: {}", e.getMessage());
+            log.error("Error: al guardar archivo en S3: {}", e.getMessage());
             return Either.left(Error.builder().message(e.getMessage()).build());
 
         }
@@ -67,7 +68,7 @@ public class UploadFilesServiceImpl implements UploadFilesService {
     public String writeUploadFile(byte[] bytes, String fileName, int orderId) {
         String filePath = "";
         try {
-            String pathOfDir = "/Users/said.guerrero/Documents/BUMERAN/files/" + String.valueOf(orderId);
+            String pathOfDir = "/Users/said.guerrero/Documents/BUMERAN/files/" + orderId;
             File theDir = new File(pathOfDir);
             if (!theDir.exists()) {
                 theDir.mkdirs();
@@ -88,10 +89,8 @@ public class UploadFilesServiceImpl implements UploadFilesService {
             try {
                 var filePath = optional.get().getFilePath();
                 if (filePath != null && !filePath.equalsIgnoreCase("Error")) {
-                    //TODO: get from S3
-//                    File file = new File(filePath);
-//                    return FileUtils.readFileToByteArray(file);
-                   return s3Service.getFile(filePath);
+                    return s3Service.getFile(filePath);
+
                 }
             } catch (Exception e) {
                 log.error("Error: {}", e.getMessage());
@@ -99,5 +98,10 @@ public class UploadFilesServiceImpl implements UploadFilesService {
         }
         return new byte[0];
 
+    }
+
+    private byte[] returnFile(String filePath) throws IOException {
+        File file = new File(filePath);
+        return FileUtils.readFileToByteArray(file);
     }
 }

@@ -5,7 +5,6 @@ import com.devas.travel.agency.domain.service.EuromundoService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.StringTokenizer;
 
 @Service
@@ -24,7 +23,6 @@ public class EuromundoServiceImpl implements EuromundoService {
             String token = tokenizer.nextToken();
             //destino
             if (token.contains("Productos reservados")) {
-                // log.info("Ruta: {}", token);
                 String nextToken = tokenizer.nextToken();
                 destino = tokenizer.nextToken();
             }

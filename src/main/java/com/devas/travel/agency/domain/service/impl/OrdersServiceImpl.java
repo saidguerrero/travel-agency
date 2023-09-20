@@ -225,14 +225,7 @@ public class OrdersServiceImpl implements OrdersService {
             pages = ordersRepository.findOrderByIdUser(userId, PageRequest.of(page - 1, size));
 
         }
-//        } else if (StringUtils.isNotBlank(search)) {
-//            pages = ordersRepository.findByReservationAndName(search, page, size);
-//        } else if (userId > 1 && StringUtils.isNotBlank(search)) {
-//            pages = ordersRepository.findByReservationAndNameByIdUser(search, userId, page, size);
-//        }
-//        else {
-//            pages = ordersRepository.findBySalesPersonUserIdOrderByOrderIdDesc(userId, null);
-//        }
+
         List<OrderResponse> dataList = getOrderAndCurrencies(pages.getContent());
 
         var orderAndConcurrencies = OrdersAndCurrencies.builder()
@@ -325,6 +318,6 @@ public class OrdersServiceImpl implements OrdersService {
                             .hasFiles(hasFiles)
                             .orderFileResponse(orderFileResponse)
                             .build();
-                }).collect(Collectors.toList());
+                }).toList();
     }
 }

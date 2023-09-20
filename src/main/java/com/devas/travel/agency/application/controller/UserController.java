@@ -34,14 +34,6 @@ public class UserController {
         );
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<Response> getUserByLogin(@RequestBody UserRequest request) {
-//        return userService.findByUserLogin(request).fold(
-//                ControllerUtils::getResponseError,
-//                ControllerUtils::getResponseSuccessOk
-//        );
-//    }
-
     @GetMapping("/byUsername/{username}")
     public ResponseEntity<Response> getUserByUsername(@PathVariable String username) {
         return userService.findByUserLogin(username).fold(

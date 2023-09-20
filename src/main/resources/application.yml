@@ -61,3 +61,8 @@ aws:
   s3:
     bucket:
       name: mybumeranbucket-qa
+
+    access:
+      key: AKIAXMA3DQ3WES55SSWJ
+    secret:
+      key: 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

@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
                         .city("CDMX")
                         .build()))
                 .orElseGet(() -> Either.left(Error.builder()
-                        .message("User not found")
+                        .message("Userio no encontrado para login: " + userName)
                         .httpStatus(HttpStatus.NOT_FOUND)
                         .build()));
     }
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .roleId(user.getRole().getRoleId())
                 .role(user.getRole().getName())
-                .build()).collect(Collectors.toList()));
+                .build()).toList());
 
     }
 
@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService {
                         userRepository.save(user);
                         emailService.sendResetPasswordMail(user.getEmail(), user.getFullName(), randomCode);
                     });
-            return Either.right("success");
+            return Either.right("Exitoso para reset password");
 
         }
     }
@@ -194,7 +194,7 @@ public class UserServiceImpl implements UserService {
                         user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
                         userRepository.save(user);
                     });
-            return Either.right("success");
+            return Either.right("Exitoso para update password");
 
         } catch (Exception e) {
             return Either.left(Error.builder()
@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .roleId(user.getRole().getRoleId())
                 .role(user.getRole().getName())
-                .build()).collect(Collectors.toList()));
+                .build()).toList());
     }
 
 }

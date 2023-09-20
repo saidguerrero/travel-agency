@@ -18,7 +18,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        //TODO: roles para consultar endpoints
 
         String bearerToken = request.getHeader("Authorization");
 

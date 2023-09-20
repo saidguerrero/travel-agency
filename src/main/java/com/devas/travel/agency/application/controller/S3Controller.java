@@ -38,7 +38,7 @@ public class S3Controller {
             return s3Service.uploadObject(bytes, "holaMundo.txt", 1);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("error al subir archivo a S3" + e);
 
         }
     }

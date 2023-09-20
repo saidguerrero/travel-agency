@@ -12,6 +12,10 @@ import java.util.Locale;
 
 public class Utils {
 
+    private Utils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String addingCommasToBigDecimal(BigDecimal number) {
         if (number == null) {
             return "0";
@@ -27,7 +31,7 @@ public class Utils {
         if (number == null) {
             return BigDecimal.ZERO;
         }
-        return new BigDecimal(number.replaceAll(",", ""));
+        return new BigDecimal(number.replace(",", ""));
     }
 
     public static String bigDecimalToString(BigDecimal number) {

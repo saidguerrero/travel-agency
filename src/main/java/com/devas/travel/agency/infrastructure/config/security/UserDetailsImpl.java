@@ -4,6 +4,7 @@ package com.devas.travel.agency.infrastructure.config.security;
 import com.devas.travel.agency.domain.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.Transient;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -16,7 +17,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //TODO: Implementar roles
         return Collections.emptyList();
 
     }

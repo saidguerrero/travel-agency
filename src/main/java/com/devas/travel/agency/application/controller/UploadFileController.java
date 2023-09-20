@@ -57,7 +57,7 @@ public class UploadFileController {
             String text = stripper.getText(document);
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
         return "PDF read successfully";
 
@@ -77,7 +77,7 @@ public class UploadFileController {
             document.close();
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
 
         }
         return "PDF read successfully";
@@ -148,10 +148,10 @@ public class UploadFileController {
             File file = new File("/Users/said.guerrero/Downloads/magni.pdf");
             PDDocument document = Loader.loadPDF(file);
             PDFTextStripper stripper = new PDFTextStripper();
-            String text = stripper.getText(document);
+
             document.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
         return "PDF read successfully";
     }

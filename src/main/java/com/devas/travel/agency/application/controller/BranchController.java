@@ -2,7 +2,6 @@ package com.devas.travel.agency.application.controller;
 
 import com.devas.travel.agency.application.dto.response.Response;
 import com.devas.travel.agency.domain.service.BranchService;
-import com.devas.travel.agency.domain.service.CityService;
 import com.devas.travel.agency.infrastructure.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

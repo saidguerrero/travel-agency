@@ -34,7 +34,7 @@ public class PDFServiceImpl implements PDFService {
             var orderOpt = ordersService.createOrder(clientData);
 
             if (orderOpt.isLeft()) {
-                log.error("Error while generating PDF");
+                log.error("Error al generar el PDF");
                 return baos.toByteArray();
             }
             var order = orderOpt.get();
@@ -51,7 +51,7 @@ public class PDFServiceImpl implements PDFService {
             document.close();
 
         } catch (Exception e) {
-            log.error("Error while generating PDF", e);
+            log.error("Error: {}", e);
         }
         return baos.toByteArray();
 
@@ -61,7 +61,7 @@ public class PDFServiceImpl implements PDFService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         var clientData = ordersService.getOrderById(id);
         if (clientData.isLeft()) {
-            log.error("Error while generating PDF");
+            log.info("No se encontro el PDF para la orden");
             return baos.toByteArray();
         }
         try {
@@ -73,7 +73,7 @@ public class PDFServiceImpl implements PDFService {
             document.close();
 
         } catch (Exception e) {
-            log.error("Error while generating PDF", e);
+            log.error("Error al encontrar el PDF por id orden : {}", e);
         }
         return baos.toByteArray();
 
@@ -168,18 +168,17 @@ public class PDFServiceImpl implements PDFService {
         try {
             // Ruta relativa del archivo PDF en resources/static
             String pdfPath = "static/terms-conditions.pdf";
-            //File file = new File("/Users/said.guerrero/Documents/BUMERAN/terms-conditions.pdf");
             ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
             InputStream templateInputStream = classLoader.getResourceAsStream(pdfPath);
 
             if (templateInputStream != null) {
                 reader = new PdfReader(templateInputStream);
             } else {
-                throw new RuntimeException("Error while loading PDF template");
+                throw new IllegalArgumentException("Error while loading PDF template");
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("Error while loading PDF template", e);
+            throw new IllegalArgumentException("Error while loading PDF template", e);
 
         }
         PdfImportedPage page = docWriter.getImportedPage(reader, 1);

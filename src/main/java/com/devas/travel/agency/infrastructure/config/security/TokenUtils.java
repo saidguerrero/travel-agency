@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class TokenUtils {
 
-    private final static String ACCESS_TOKEN_SECRET = "BbYp3s6v9y$B&E)H@McQfTjWnZr4u7x!";
+    private static final String ACCESS_TOKEN_SECRET = "BbYp3s6v9y$B&E)H@McQfTjWnZr4u7x!";
 
-    private final static Long ACCESS_TOKEN_VALIDITY_SECONDS = 86400000L;
+    private static final Long ACCESS_TOKEN_VALIDITY_SECONDS = 86400000L;
 
     private TokenUtils() {
     }
@@ -43,8 +43,6 @@ public class TokenUtils {
                     .parseClaimsJws(token)
                     .getBody();
 
-            var authorities = claims.get("role");
-            var roleId = claims.get("roleId");
             var userName = claims.getSubject();
 
             return new UsernamePasswordAuthenticationToken(userName, null, Collections.emptyList());

@@ -7,6 +7,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,10 +15,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AWSConfig {
 
+    @Value("${aws.s3.access.key}")
+    private String accessKey;
+
+    @Value("${aws.s3.secret.key}")
+    private String secretKey;
+
     public AWSCredentials credentials() {
         return new BasicAWSCredentials(
-                "AKIAXMA3DQ3WES55SSWJ",
-                "laRs4tYoSHBgEkPBFnDbfB8Q0UPCw1dfYWWyshPe");
+                accessKey, secretKey);
 
     }
 

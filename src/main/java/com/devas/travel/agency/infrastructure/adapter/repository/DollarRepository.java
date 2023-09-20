@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface DollarRepository extends JpaRepository<Dollar, Integer> {
 
-    Optional<Dollar> findById(int Id);
+    Optional<Dollar> findById(int id);
 
     Optional<Dollar> findByActiveTrue();
 

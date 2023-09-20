@@ -1,7 +1,6 @@
 package com.devas.travel.agency.infrastructure.adapter.repository;
 
 import com.devas.travel.agency.domain.model.Branch;
-import com.devas.travel.agency.domain.model.City;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -25,8 +25,8 @@ public class SalesPersonInfoServiceImpl implements SalesPersonInfoService {
     @Override
     public void createSalesPersonInfo(User user, int branchId, int cityId) {
         SalesPersonInfo salesPersonInfo = new SalesPersonInfo();
-        salesPersonInfo.setBranch(branchRepository.findById(branchId).get());
-        salesPersonInfo.setCity(cityRepository.findById(cityId).get());
+        salesPersonInfo.setBranch(branchRepository.findById(branchId).orElse(null));
+        salesPersonInfo.setCity(cityRepository.findById(cityId).orElse(null));
         salesPersonInfo.setUser(user);
 
         salesPersonInfoRepository.save(salesPersonInfo);

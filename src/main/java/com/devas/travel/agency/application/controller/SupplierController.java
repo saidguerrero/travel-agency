@@ -1,6 +1,5 @@
 package com.devas.travel.agency.application.controller;
 
-import com.devas.travel.agency.application.dto.request.UserRequest;
 import com.devas.travel.agency.application.dto.response.Response;
 import com.devas.travel.agency.domain.service.SupplierService;
 import com.devas.travel.agency.infrastructure.utils.ControllerUtils;
@@ -8,7 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RequiredArgsConstructor

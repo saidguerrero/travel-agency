@@ -6,8 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.SdkSystemSetting;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -26,7 +29,10 @@ public class S3ServiceImpl implements S3Service {
     public String uploadObject(byte[] bytes, String fileName, int orderId) {
         log.info("Uploading file to S3 folder {}", orderId);
         System.setProperty("aws.region", "us-east-1");
-        try (S3Client s3Client = S3Client.builder().build()) {
+        try (S3Client s3Client = S3Client.builder()
+                .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .build()) {
             String key = String.valueOf(orderId) + "/" + fileName;
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -44,7 +50,10 @@ public class S3ServiceImpl implements S3Service {
     public byte[] getFile(String filePath) {
         log.info("get file from S3 {}", filePath);
         System.setProperty("aws.region", "us-east-1");
-        try (S3Client s3Client = S3Client.builder().build()) {
+        try (S3Client s3Client = S3Client.builder()
+                .region(Region.of(System.getenv(SdkSystemSetting.AWS_REGION.environmentVariable())))
+                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .build()) {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
                     .key(filePath)

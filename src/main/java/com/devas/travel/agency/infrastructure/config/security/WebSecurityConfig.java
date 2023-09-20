@@ -109,6 +109,7 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+
     }
 
     public static void main(String[] args) {
@@ -116,3 +117,4 @@ public class WebSecurityConfig {
     }
 
 }
+
