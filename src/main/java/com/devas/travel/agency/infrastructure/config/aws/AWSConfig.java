@@ -23,7 +23,8 @@ public class AWSConfig {
 
     public AWSCredentials credentials() {
         return new BasicAWSCredentials(
-                accessKey, secretKey);
+                "AKIAXMA3DQ3WOLYIF4XQ",
+                "bCgvDwZaWcq/+5itzfpy2JcFQ8Peh/rFSdH7V+MP");
 
     }
 

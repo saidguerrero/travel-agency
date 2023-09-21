@@ -27,7 +27,7 @@ public class ControllerUtils {
         return new ResponseEntity<>(response, response.getHttpCode());
     }
 
-    public static ResponseEntity<Response> getResponseError(Error error) {
+    public static ResponseEntity<Response>  getResponseError(Error error) {
         var response = new Response();
 
         response.setHttpCode(error.getHttpStatus());

@@ -60,9 +60,9 @@ bumeran:
 aws:
   s3:
     bucket:
-      name: mybumeranbucket-qa
+      name: bumeran-bucket-qa
 
     access:
-      key: AKIAXMA3DQ3WES55SSWJ
+      key: 'AKIAXMA3DQ3WOLYIF4XQ'
     secret:
-      key: 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
+      key: 'bCgvDwZaWcq/+5itzfpy2JcFQ8Peh/rFSdH7V+MP'
