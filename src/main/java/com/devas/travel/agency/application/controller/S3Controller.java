@@ -54,4 +54,12 @@ public class S3Controller {
         return new ResponseEntity<>(data, header, HttpStatus.OK);
 
     }
+
+    @PostMapping("/createBucket/{bucketName}")
+    public String createBucket(@PathVariable String bucketName) {
+        log.info("Create bucket");
+        s3Service.createBucket(bucketName);
+        return "Bucket created";
+
+    }
 }

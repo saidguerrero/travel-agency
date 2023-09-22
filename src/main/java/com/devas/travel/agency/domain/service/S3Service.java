@@ -7,4 +7,6 @@ public interface S3Service {
 
     byte[] getFile(String filePath);
 
+    void createBucket(String bucketName);
+
 }

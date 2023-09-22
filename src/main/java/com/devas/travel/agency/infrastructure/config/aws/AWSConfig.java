@@ -30,14 +30,14 @@ public class AWSConfig {
 
     @Bean
     public AmazonS3 amazonS3() {
-//        return AmazonS3ClientBuilder
-//                .standard()
-//                .withCredentials(
-//                        new AWSStaticCredentialsProvider(credentials()))
-//                .withRegion("us-east-1")
-//                .build();
+        return AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(
+                        new AWSStaticCredentialsProvider(credentials()))
+                .withRegion(Regions.US_EAST_2)
+                .build();
 
-      return AmazonS3ClientBuilder.defaultClient();
+//      return AmazonS3ClientBuilder.defaultClient();
       //  AmazonPollyClient apClient = (AmazonPollyClient) AmazonPollyClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion("<aws-region>").build();
     }
 }
