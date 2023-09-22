@@ -34,9 +34,9 @@ public class AWSConfig {
 // environment variable (AWS_REGION)
         System.setProperty("aws.region", "us-east-2");
 //        aws.accessKeyId
-        System.setProperty("aws.accessKeyId", "AKIAJ4ZQ3WOLYIF4XQ");
+        System.setProperty("aws.accessKeyId", "AKIAXMA3DQ3WOLYIF4XQ");
 //        aws.secretKey
-        System.setProperty("aws.secretKey", "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");
+        System.setProperty("aws.secretAccessKey", "bCgvDwZaWcq/+5itzfpy2JcFQ8Peh/rFSdH7V+MP");
 
         return AmazonS3ClientBuilder
                 .standard()
