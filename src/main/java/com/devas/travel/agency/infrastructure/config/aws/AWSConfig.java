@@ -30,9 +30,13 @@ public class AWSConfig {
 
     @Bean
     public AmazonS3 amazonS3() {
-       // system property (aws.region).,
+        // system property (aws.region).,
 // environment variable (AWS_REGION)
         System.setProperty("aws.region", "us-east-2");
+//        aws.accessKeyId
+        System.setProperty("aws.accessKeyId", "AKIAJ4ZQ3WOLYIF4XQ");
+//        aws.secretKey
+        System.setProperty("aws.secretKey", "bCgvDwZaWcq/+5itzfpy2JcFQ8Peh/rFSdH7V+MP");
 
         return AmazonS3ClientBuilder
                 .standard()
