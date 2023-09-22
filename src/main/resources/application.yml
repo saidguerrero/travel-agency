@@ -60,7 +60,7 @@ bumeran:
 aws:
   s3:
     bucket:
-      name: test-qa-1
+      name: test-qa-3
 
     access:
       key: 'AKIAXMA3DQ3WOLYIF4XQ'
