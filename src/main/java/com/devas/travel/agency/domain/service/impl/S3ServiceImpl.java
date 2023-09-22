@@ -51,6 +51,7 @@ public class S3ServiceImpl implements S3Service {
     @Override
     public String uploadObject(byte[] bytes, String fileName, int orderId) {
         log.info("Uploading file to S3 folder {}", orderId);
+        System.setProperty("aws.region", "us-east-2");
 //        try (S3Client s3Client = S3Client.builder()
 //                .region(Region.US_EAST_1)
 //                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
@@ -72,6 +73,7 @@ public class S3ServiceImpl implements S3Service {
     @Override
     public byte[] getFile(String filePath) {
         log.info("get file from S3 {}", filePath);
+        System.setProperty("aws.region", "us-east-2");
         try (S3Client s3Client = S3Client.builder().build()) {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucketName)
