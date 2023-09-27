@@ -11,6 +11,8 @@ public class OrderResponse {
 
     private Integer id;
 
+    private int statusId;
+
     private String quotationSheet;
 
     private String fullName;

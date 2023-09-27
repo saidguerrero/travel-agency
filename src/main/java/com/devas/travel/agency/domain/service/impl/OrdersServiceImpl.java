@@ -46,6 +46,14 @@ public class OrdersServiceImpl implements OrdersService {
 
     private final StatusRepository statusRepository;
 
+    private final BranchService branchService;
+
+    private final CityService cityService;
+
+    private final SupplierService supplierService;
+
+    private final UserService userService;
+
     @Override
     public Either<Error, Orders> createOrder(ClientData clientData) {
         try {
@@ -146,14 +154,6 @@ public class OrdersServiceImpl implements OrdersService {
 
     }
 
-    private final BranchService branchService;
-
-    private final CityService cityService;
-
-    private final SupplierService supplierService;
-
-    private final UserService userService;
-
     @Override
     public Either<Error, OrderItems> getOrderItems() {
         try {
@@ -210,7 +210,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public PaginatedObjectDTO<OrdersAndCurrencies> getPageOrdersByUserId(String search, int userId, int page, int size, int roleId) {
         Page<Orders> pages;
-        if (roleId == 1  || roleId == 33) {
+        if (roleId == 1 || roleId == 33) {
             if (StringUtils.isNotBlank(search)) {
                 pages = ordersRepository.findByReservationAndName(search, PageRequest.of(page - 1, size));
 
@@ -266,6 +266,26 @@ public class OrdersServiceImpl implements OrdersService {
         }
     }
 
+    @Override
+    public Either<Error, String> updateStatusQuote(int orderId, int statusId) {
+        try {
+            var order = ordersRepository.findById((long) orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+
+            statusRepository.findByStatusId(statusId).ifPresent(order::setQuotaStatus);
+            ordersRepository.save(order);
+            return Either.right("Status updated");
+
+        } catch (Exception e) {
+            log.error("Error updating status", e);
+            return Either.left(Error.builder()
+                    .message("Error updating status:" + e.getMessage())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+
+        }
+    }
+
     private List<OrderResponse> getOrderAndCurrencies(List<Orders> orders) {
         return orders.stream()
                 .map(order -> {
@@ -317,6 +337,7 @@ public class OrdersServiceImpl implements OrdersService {
                             .emergencyContact(order.getEmergencyContact())
                             .hasFiles(hasFiles)
                             .orderFileResponse(orderFileResponse)
+                            .statusId(order.getQuotaStatus().getStatusId())
                             .build();
                 }).toList();
     }

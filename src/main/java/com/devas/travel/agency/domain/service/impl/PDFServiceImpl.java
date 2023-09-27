@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Slf4j
@@ -27,6 +28,9 @@ public class PDFServiceImpl implements PDFService {
     private static final Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
 
     public static final String FORMAT_DD_MM_YYYY = "dd-MM-yyyy";
+    public static final String FORMAT_HH_MM = "HH:mm";
+
+    public static final String PRICE_SHOES_CODE = "8888888";
 
     public byte[] generatePDF(ClientData clientData) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -132,7 +136,10 @@ public class PDFServiceImpl implements PDFService {
 
         Paragraph prefaceBody9 = new Paragraph("Teléfono de Emergencia " + clientData.getEmergencyContactPhone(), smallBold);
         prefaceBody9.setAlignment(Element.ALIGN_LEFT);
-        addEmptyLine(prefaceBody9, 5);
+        addEmptyLine(prefaceBody9, 1);
+
+        Paragraph prefaceBody10 = new Paragraph(Utils.dateToString(new Date(), FORMAT_HH_MM), catFont);
+        prefaceBody10.setAlignment(Element.ALIGN_CENTER);
 
         document.add(prefaceHeader1);
         document.add(prefaceHeader2);
@@ -148,18 +155,45 @@ public class PDFServiceImpl implements PDFService {
         document.add(prefaceBody7);
         document.add(prefaceBody8);
         document.add(prefaceBody9);
+        document.add(prefaceBody10);
 
-        PdfContentByte cb = docWriter.getDirectContent();
-        Barcode128 barcode128 = new Barcode128();
-        barcode128.setCode(clientData.getReservationNumber());
-        barcode128.setCodeType(Barcode.CODE128);
-        Image code128Image = barcode128.createImageWithBarcode(cb, null, null);
-        code128Image.scaleAbsolute(300, 150);
-        code128Image.setAlignment(Element.ALIGN_CENTER);
-        document.add(code128Image);
+        document.add(getBarcodeImage(docWriter, clientData.getAmount()));
+        document.add(getBarcodeImageMini(docWriter, clientData.getReservationNumber()));
         // Start a new page
         document.newPage();
         addTermsAndConditions(document, docWriter);
+    }
+
+    private Image getBarcodeImage(PdfWriter docWriter, BigDecimal amount) {
+        PdfContentByte cb = docWriter.getDirectContent();
+        Barcode128 barcode128 = getBarcode(amount);
+        Image code128Image = barcode128.createImageWithBarcode(cb, null, null);
+        code128Image.scaleAbsolute(300, 150);
+        code128Image.setAlignment(Element.ALIGN_CENTER);
+        return code128Image;
+    }
+
+    private Image getBarcodeImageMini(PdfWriter docWriter, String localizador) {
+        PdfContentByte cb = docWriter.getDirectContent();
+        Barcode128 barcode128 = new Barcode128();
+        barcode128.setCode(localizador);
+        barcode128.setCodeType(Barcode.CODE128);
+        Image code128Image = barcode128.createImageWithBarcode(cb, null, null);
+        code128Image.scaleAbsolute(100, 20);
+        code128Image.setAlignment(Element.ALIGN_LEFT);
+        return code128Image;
+    }
+
+    private Barcode128 getBarcode(BigDecimal amount) {
+        Barcode128 barcode128 = new Barcode128();
+        barcode128.setCode(getBarcodeValue(amount));
+        barcode128.setCodeType(Barcode.CODE128);
+        return barcode128;
+    }
+
+    private String getBarcodeValue(BigDecimal amount) {
+        return "$" + PRICE_SHOES_CODE + "0" + Utils.amountRoundUp(amount);
+
     }
 
     private void addTermsAndConditions(Document document, PdfWriter docWriter) {

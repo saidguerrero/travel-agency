@@ -7,6 +7,12 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Base64;
+import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 public class TestPDF {
@@ -14,7 +20,11 @@ public class TestPDF {
     public static void main(String[] args) {
 //        System.out.println("Hello World!");
 //        readPDF();
-        System.out.println(Utils.getFormatDateSpanish());
+        //  System.out.println(Utils.getFormatDateSpanish());
+
+     //   readTravelinnPDF();
+
+        System.out.println( Utils.amountRoundUp(new BigDecimal(100.01)));
     }
 
     public static ClientData readPDF() {
@@ -30,6 +40,26 @@ public class TestPDF {
                 readEuroMundoPDF(text);
             }
             document.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public static ClientData readTravelinnPDF() {
+        try {
+            StringBuilder builder = new StringBuilder();
+            File file = new File("/Users/said.guerrero/Documents/BUMERAN/Crear Cotizacion/travelIn_2.pdf");
+            File file2 = new File("/Users/said.guerrero/Documents/BUMERAN/Crear Cotizacion/travelIn_1.pdf");
+            List<File> files = List.of(file, file2);
+            for (File f : files) {
+                PDDocument document = Loader.loadPDF(f);
+                PDFTextStripper stripper = new PDFTextStripper();
+                builder.append(stripper.getText(document));
+                document.close();
+            }
+            readTravelinnPDF2(builder.toString());
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +83,7 @@ public class TestPDF {
                 System.out.println("nombre: " + getData(token));
             }
             if (token.contains("Paquete precio")) {
-               String precio = getTotalEuro(token);
+                String precio = getTotalEuro(token);
                 precio = precio.replace(" MXN", "");
                 System.out.println("Total: " + precio);
             }
@@ -178,6 +208,19 @@ public class TestPDF {
 
     }
 
+    public static String getTotalTravelinn(String price) {
+        Locale locale = Locale.US;
+        Number number = null;
+        try {
+            number = NumberFormat.getCurrencyInstance(locale).parse(price);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(number);
+        return number.toString();
+
+    }
+
     public static String getReservation(String text) {
         var tokens = text.split("=");
         String reservation = "";
@@ -210,4 +253,49 @@ public class TestPDF {
         return reservationNumber;
 
     }
+
+    public static ClientData readTravelinnPDF2(String text) {
+        var tokenizer = new StringTokenizer(text, "\n");
+        var destino = "";
+        var nombre = "";
+        var total = "";
+        var phone = "";
+        var email = "";
+        var reservationNumber = "";
+
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            //Paquete
+            if (token.contains("Paquete")) {
+                destino = token;
+                System.out.println("Destion: " + destino.replace("Paquete: ", ""));
+            }
+            //nombre del cliente
+            if (token.contains("Contacto de emergencia")) {
+                nombre = tokenizer.nextToken();
+                ;
+            }
+            if (token.contains("Monto a pagar:")) {
+                total = tokenizer.nextToken();
+                String precio = getTotalTravelinn(total);
+                System.out.println("Total: " + precio);
+            }
+            if (token.contains("Localizador:")) {
+
+                reservationNumber = tokenizer.nextToken();
+            }
+        }
+        return ClientData.builder()
+                .travelInfo(destino)
+                .fullName(nombre)
+                .amountString(total)
+                .amount(new java.math.BigDecimal(0))
+                .contactPhoneNum(phone)
+                .contactEmail(email)
+                .reservationNumber(reservationNumber)
+                .build();
+
+    }
+
+
 }

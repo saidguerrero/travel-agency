@@ -23,8 +23,8 @@ public class AWSConfig {
 
     public AWSCredentials credentials() {
         return new BasicAWSCredentials(
-                "AKIAXMA3DQ3WOLYIF4XQ",
-                "bCgvDwZaWcq/+5itzfpy2JcFQ8Peh/rFSdH7V+MP");
+                accessKey,
+                secretKey);
 
     }
 
@@ -34,9 +34,9 @@ public class AWSConfig {
 // environment variable (AWS_REGION)
         System.setProperty("aws.region", "us-east-2");
 //        aws.accessKeyId
-        System.setProperty("aws.accessKeyId", "AKIAXMA3DQ3WOLYIF4XQ");
+        System.setProperty("aws.accessKeyId", accessKey);
 //        aws.secretKey
-        System.setProperty("aws.secretAccessKey", "bCgvDwZaWcq/+5itzfpy2JcFQ8Peh/rFSdH7V+MP");
+        System.setProperty("aws.secretAccessKey", secretKey);
 
         return AmazonS3ClientBuilder
                 .standard()

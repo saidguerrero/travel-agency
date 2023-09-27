@@ -1,6 +1,7 @@
 package com.devas.travel.agency.infrastructure.utils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -65,6 +66,14 @@ public class Utils {
             return "N/A";
         }
         return String.format("%04d", number);
+    }
+
+    public static String amountRoundUp(BigDecimal number) {
+        if (number == null) {
+            return "N/A";
+        }
+        return String.format("%06d", number.setScale(0, RoundingMode.UP).intValue());
+
     }
 
     public static String getFormatDateSpanish() {

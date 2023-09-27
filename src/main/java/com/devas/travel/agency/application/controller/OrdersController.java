@@ -1,5 +1,6 @@
 package com.devas.travel.agency.application.controller;
 
+import com.devas.travel.agency.application.dto.request.UpdateStatus;
 import com.devas.travel.agency.application.dto.response.Response;
 import com.devas.travel.agency.domain.service.OrdersService;
 import com.devas.travel.agency.infrastructure.utils.ControllerUtils;
@@ -97,6 +98,15 @@ public class OrdersController {
     @GetMapping("/findbyword/{word}/user/{userId}")
     public ResponseEntity<Response> getOrdersByWord(@PathVariable String word, @PathVariable int userId) {
         return ordersService.getAllOrders().fold(
+                ControllerUtils::getResponseError,
+                ControllerUtils::getResponseSuccessOk
+        );
+
+    }
+
+    @PutMapping("/updateStatusQuote")
+    public ResponseEntity<Response> updateStatusQuote(@RequestBody UpdateStatus request) {
+        return ordersService.updateStatusQuote(request.getOrderId(), request.getStatusId()).fold(
                 ControllerUtils::getResponseError,
                 ControllerUtils::getResponseSuccessOk
         );
