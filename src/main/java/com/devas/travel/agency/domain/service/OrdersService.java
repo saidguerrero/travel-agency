@@ -26,4 +26,6 @@ public interface OrdersService {
     Either<Error, OrdersAndCurrencies> getPageOrdersByWord(String word, int userId);
 
     Either<Error, String> updateStatusQuote(int orderId, int statusId);
+
+    void updateExpiredOrder();
 }

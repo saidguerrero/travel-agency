@@ -41,6 +41,8 @@ public class Constants {
 
     public static final int CANCELED_STATUS_ID = 3;
 
+    public static final int EXPIRED_STATUS_ID = 4;
+
     private Constants() {
     }
 }

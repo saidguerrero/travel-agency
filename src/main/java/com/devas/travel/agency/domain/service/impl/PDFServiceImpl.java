@@ -6,6 +6,7 @@ import com.devas.travel.agency.domain.service.PDFService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.draw.VerticalPositionMark;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -93,12 +94,14 @@ public class PDFServiceImpl implements PDFService {
 
     private void addTitlePage(Document document, ClientData clientData, PdfWriter docWriter, Long id)
             throws DocumentException {
+
+        Paragraph title = new Paragraph("Orden de Pago                     " + Utils.leadZero(id), catFont);
+        title.setAlignment(Element.ALIGN_LEFT);
+
         Paragraph prefaceHeader1 = new Paragraph(Utils.dateToString(new Date(), FORMAT_DD_MM_YYYY), smallBold);
         prefaceHeader1.setAlignment(Element.ALIGN_RIGHT);
 
-        Paragraph prefaceHeader2 = new Paragraph(Utils.leadZero(id), smallBold);
-        prefaceHeader2.setAlignment(Element.ALIGN_RIGHT);
-        addEmptyLine(prefaceHeader2, 1);
+        addEmptyLine(prefaceHeader1, 1);
 
         Paragraph prefaceTitle = new Paragraph(clientData.getFullName(), catFont);
         prefaceTitle.setAlignment(Element.ALIGN_CENTER);
@@ -136,13 +139,13 @@ public class PDFServiceImpl implements PDFService {
 
         Paragraph prefaceBody9 = new Paragraph("Teléfono de Emergencia " + clientData.getEmergencyContactPhone(), smallBold);
         prefaceBody9.setAlignment(Element.ALIGN_LEFT);
-        addEmptyLine(prefaceBody9, 1);
+//        addEmptyLine(prefaceBody9, 1);
 
         Paragraph prefaceBody10 = new Paragraph(Utils.dateToString(new Date(), FORMAT_HH_MM), catFont);
         prefaceBody10.setAlignment(Element.ALIGN_CENTER);
 
+        document.add(title);
         document.add(prefaceHeader1);
-        document.add(prefaceHeader2);
         document.add(prefaceTitle);
         document.add(prefaceTitle2);
         document.add(prefaceTitle3);
@@ -158,7 +161,23 @@ public class PDFServiceImpl implements PDFService {
         document.add(prefaceBody10);
 
         document.add(getBarcodeImage(docWriter, clientData.getAmount()));
+
+        Chunk glue = new Chunk(new VerticalPositionMark());
+        Paragraph signLines = new Paragraph("_______________________");
+        signLines.add(new Chunk(glue));
+        signLines.add("____________________");
+
+        document.add(signLines);
+
+        Chunk glue1 = new Chunk(new VerticalPositionMark());
+        Paragraph signLabel = new Paragraph("Firma conformidad de cliente");
+        signLabel.add(new Chunk(glue1));
+        signLabel.add("Sello de pago en la caja");
+        document.add(signLabel);
+
+
         document.add(getBarcodeImageMini(docWriter, clientData.getReservationNumber()));
+
         // Start a new page
         document.newPage();
         addTermsAndConditions(document, docWriter);
@@ -168,9 +187,27 @@ public class PDFServiceImpl implements PDFService {
         PdfContentByte cb = docWriter.getDirectContent();
         Barcode128 barcode128 = getBarcode(amount);
         Image code128Image = barcode128.createImageWithBarcode(cb, null, null);
-        code128Image.scaleAbsolute(300, 150);
+        code128Image.scaleAbsolute(150, 75);
         code128Image.setAlignment(Element.ALIGN_CENTER);
         return code128Image;
+    }
+
+    private Rectangle getRectangleForClientSign( PdfWriter writer) throws DocumentException {
+        PdfContentByte canvas = writer.getDirectContent();
+        Rectangle rect = new Rectangle(0, 780, 494, 820);
+        rect.setBorder(Rectangle.BOX);
+        rect.setBorderWidth(1);
+        rect.setBackgroundColor(BaseColor.GRAY);
+        rect.setBorderColor(BaseColor.GREEN);
+        canvas.rectangle(rect);
+
+        ColumnText ct = new ColumnText(canvas);
+        ct.setSimpleColumn(rect);
+        Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
+        ct.addElement(new Paragraph("Your Text Goes here!! ", catFont));
+        ct.go();
+        return rect;
+
     }
 
     private Image getBarcodeImageMini(PdfWriter docWriter, String localizador) {

@@ -16,10 +16,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -283,6 +285,23 @@ public class OrdersServiceImpl implements OrdersService {
                     .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
 
+        }
+    }
+
+    @Override
+    @Scheduled(cron = "0 0/15 * * * ?")
+    public void updateExpiredOrder() {
+        log.info("Updating expired orders");
+        try {
+            ordersRepository.findExpiredOrders(new Date()).forEach(order -> {
+                order.setQuotaStatus(statusRepository
+                        .findByStatusId(EXPIRED_STATUS_ID)
+                        .orElseThrow(() -> new RuntimeException("NO se encontro el status Expirado")));
+                ordersRepository.save(order);
+            });
+
+        } catch (Exception e) {
+            log.error("Error updating expired orders", e);
         }
     }
 
