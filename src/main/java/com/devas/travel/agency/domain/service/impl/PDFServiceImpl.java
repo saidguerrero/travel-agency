@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 
 @Slf4j
@@ -25,6 +26,7 @@ public class PDFServiceImpl implements PDFService {
     private final OrdersService ordersService;
 
     private static final Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 36, Font.BOLD);
+    private static final Font catFontTiny = new Font(Font.FontFamily.TIMES_ROMAN, 6, Font.NORMAL);
 
     private static final Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
 
@@ -93,7 +95,15 @@ public class PDFServiceImpl implements PDFService {
     }
 
     private void addTitlePage(Document document, ClientData clientData, PdfWriter docWriter, Long id)
-            throws DocumentException {
+            throws DocumentException, IOException {
+        String logoPath = "static/viajesPrice.png";
+        ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
+        InputStream templateInputStream = classLoader.getResourceAsStream(logoPath);
+        Image templateImage = Image.getInstance(templateInputStream.readAllBytes());
+        templateImage.setAbsolutePosition(0, 700);
+        templateImage.scaleAbsolute(500, 100);
+        templateImage.setAlignment(Element.ALIGN_LEFT);
+        document.add(templateImage);
 
         Paragraph title = new Paragraph("Orden de Pago                     " + Utils.leadZero(id), catFont);
         title.setAlignment(Element.ALIGN_LEFT);
@@ -141,7 +151,8 @@ public class PDFServiceImpl implements PDFService {
         prefaceBody9.setAlignment(Element.ALIGN_LEFT);
 //        addEmptyLine(prefaceBody9, 1);
 
-        Paragraph prefaceBody10 = new Paragraph(Utils.dateToString(new Date(), FORMAT_HH_MM), catFont);
+        Date date = new Date();
+        Paragraph prefaceBody10 = new Paragraph(Utils.dateToString(date, FORMAT_HH_MM), catFont);
         prefaceBody10.setAlignment(Element.ALIGN_CENTER);
 
         document.add(title);
@@ -175,12 +186,37 @@ public class PDFServiceImpl implements PDFService {
         signLabel.add("Sello de pago en la caja");
         document.add(signLabel);
 
+        //tabla
+//        PdfPTable table = new PdfPTable(2);
+//        table.setWidthPercentage(100);
+//        table.addCell(getBarcodeImageMini(docWriter, clientData.getReservationNumber()));
+//
+//        table.addCell(getCell("Hora de vencimiento: " + add1HourToDate(date), PdfPCell.ALIGN_RIGHT));
+//        document.add(table);
 
         document.add(getBarcodeImageMini(docWriter, clientData.getReservationNumber()));
 
+        Paragraph horaVencimiento = new Paragraph("Hora de vencimiento: " + add1HourToDate(date), catFontTiny);
+        horaVencimiento.setAlignment(Element.ALIGN_RIGHT);
+        document.add(horaVencimiento);
         // Start a new page
         document.newPage();
         addTermsAndConditions(document, docWriter);
+    }
+
+    public String add1HourToDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR_OF_DAY, 1);
+        return Utils.dateToString(calendar.getTime(), FORMAT_HH_MM);
+    }
+
+    public PdfPCell getCell(String text, int alignment) {
+        PdfPCell cell = new PdfPCell(new Phrase(text));
+        cell.setPadding(0);
+        cell.setHorizontalAlignment(alignment);
+        cell.setBorder(PdfPCell.NO_BORDER);
+        return cell;
     }
 
     private Image getBarcodeImage(PdfWriter docWriter, BigDecimal amount) {
@@ -192,7 +228,7 @@ public class PDFServiceImpl implements PDFService {
         return code128Image;
     }
 
-    private Rectangle getRectangleForClientSign( PdfWriter writer) throws DocumentException {
+    private Rectangle getRectangleForClientSign(PdfWriter writer) throws DocumentException {
         PdfContentByte canvas = writer.getDirectContent();
         Rectangle rect = new Rectangle(0, 780, 494, 820);
         rect.setBorder(Rectangle.BOX);

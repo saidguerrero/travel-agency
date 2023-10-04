@@ -18,6 +18,8 @@ public class SendEmailDTO {
 
     private String to;
 
+    private List<String> cc;
+
     private Map<String, Object> variables;
 
     private List<SendEmailAttachment> attachments;

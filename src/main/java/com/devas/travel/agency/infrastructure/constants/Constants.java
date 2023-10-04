@@ -33,6 +33,7 @@ public class Constants {
 
     public static final int DATA_ID = 2;
 
+    public static final int CONDITIONS_SERVICES_ID = 4;
     public static final int TERMS_AND_CONDITION_ID = 3;
 
     public static final int PENDENT_STATUS_ID = 1;

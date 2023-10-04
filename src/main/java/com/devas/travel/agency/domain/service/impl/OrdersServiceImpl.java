@@ -56,6 +56,10 @@ public class OrdersServiceImpl implements OrdersService {
 
     private final UserService userService;
 
+    private final WhatsAppService whatsAppService;
+
+    private final EmailService emailService;
+
     @Override
     public Either<Error, Orders> createOrder(ClientData clientData) {
         try {
@@ -276,6 +280,10 @@ public class OrdersServiceImpl implements OrdersService {
 
             statusRepository.findByStatusId(statusId).ifPresent(order::setQuotaStatus);
             ordersRepository.save(order);
+            if (PAY_STATUS_ID == statusId) {
+                emailService.sendNotifyOfSaleMail(order);
+                whatsAppService.sendWhatsAppMessageForSale("Se creo una compra para el localzador: " + order.getReservationNumber());
+            }
             return Either.right("Status updated");
 
         } catch (Exception e) {
@@ -310,9 +318,10 @@ public class OrdersServiceImpl implements OrdersService {
                 .map(order -> {
                     boolean hasFiles = false;
                     OrderFileResponse orderFileResponse = null;
-                    int idPayOrder = 0;
-                    int idGeneralData = 0;
-                    int idTermsAndConditions = 0;
+                    var idPayOrder = 0;
+                    var idGeneralData = 0;
+                    var idTermsAndConditions = 0;
+                    var idConditionsOfServices = 0;
                     var orderFiles = orderFilesRepository.findByOrdersByOrderIdOrderId(order.getOrderId());
 
                     if (!orderFiles.isEmpty()) {
@@ -327,12 +336,16 @@ public class OrdersServiceImpl implements OrdersService {
                             } else if (orderFile.getTypeFileId() == TERMS_AND_CONDITION_ID) {
                                 idTermsAndConditions = orderFile.getId().intValue();
 
+                            } else if (orderFile.getTypeFileId() == CONDITIONS_SERVICES_ID) {
+                                idConditionsOfServices = orderFile.getId().intValue();
+
                             }
                         }
                         orderFileResponse = OrderFileResponse.builder()
                                 .idPayOrder(idPayOrder)
                                 .idGeneralData(idGeneralData)
                                 .idTermsAndConditions(idTermsAndConditions)
+                                .idConditionsOfServices(idConditionsOfServices)
                                 .build();
                     }
 

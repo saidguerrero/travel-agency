@@ -8,8 +8,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Utils {
 
@@ -107,5 +108,9 @@ public class Utils {
 
         return total.multiply(amountRate);
 
+    }
+
+    public static List<String> stringsCharSeparatedToList(String string, String separator) {
+        return Stream.of(string.split(separator, -1)).map(String::trim).toList();
     }
 }

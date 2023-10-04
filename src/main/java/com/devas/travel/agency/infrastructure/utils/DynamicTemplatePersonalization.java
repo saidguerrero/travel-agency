@@ -9,10 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * @author Wizeline: gerardo.lucas
- * Description: Class to store dynamic data for SendGrid emails
- */
+
 @EqualsAndHashCode(callSuper = true)
 public class DynamicTemplatePersonalization extends Personalization {
 

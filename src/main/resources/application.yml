@@ -56,6 +56,7 @@ bumeran:
     from-name: 'Viajes Bumeran'
     send-grid-templates:
       reset-password-id: 'd-7d80d0c386ca45088bd6fbb7946bc8d8'
+      notify-sale-id: 'd-8d34629b6aa2485c99f318014463f443'
 
 aws:
   s3:

@@ -14,4 +14,7 @@ public class OrderFileResponse {
     private int idGeneralData;
 
     private int idTermsAndConditions;
+
+    private int idConditionsOfServices;
+
 }
