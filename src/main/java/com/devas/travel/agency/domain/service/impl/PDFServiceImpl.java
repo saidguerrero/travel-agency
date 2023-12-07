@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -33,7 +34,7 @@ public class PDFServiceImpl implements PDFService {
     public static final String FORMAT_DD_MM_YYYY = "dd-MM-yyyy";
     public static final String FORMAT_HH_MM = "HH:mm";
 
-    public static final String PRICE_SHOES_CODE = "8888888";
+    public static final String PRICE_SHOES_CODE = "1140301";
 
     public byte[] generatePDF(ClientData clientData) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -96,19 +97,19 @@ public class PDFServiceImpl implements PDFService {
 
     private void addTitlePage(Document document, ClientData clientData, PdfWriter docWriter, Long id)
             throws DocumentException, IOException {
-        String logoPath = "static/viajesPrice.png";
-        ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
-        InputStream templateInputStream = classLoader.getResourceAsStream(logoPath);
-        Image templateImage = Image.getInstance(templateInputStream.readAllBytes());
-        templateImage.setAbsolutePosition(0, 700);
-        templateImage.scaleAbsolute(500, 100);
-        templateImage.setAlignment(Element.ALIGN_LEFT);
-        document.add(templateImage);
+//        String logoPath = "static/logoVB.png";
+//        ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
+//        InputStream templateInputStream = classLoader.getResourceAsStream(logoPath);
+//        Image templateImage = Image.getInstance(templateInputStream.readAllBytes());
+//        templateImage.setAbsolutePosition(0, 700);
+//        templateImage.scaleAbsolute(500, 100);
+//        templateImage.setAlignment(Element.ALIGN_LEFT);
+//        document.add(templateImage);
 
-        Paragraph title = new Paragraph("Orden de Pago                     " + Utils.leadZero(id), catFont);
+        Paragraph title = new Paragraph("Orden de Pago                     " + Utils.leadZero(id, 4), catFont);
         title.setAlignment(Element.ALIGN_LEFT);
 
-        Paragraph prefaceHeader1 = new Paragraph(Utils.dateToString(new Date(), FORMAT_DD_MM_YYYY), smallBold);
+        Paragraph prefaceHeader1 = new Paragraph(Utils.dateToString(LocalDateTime.now(), FORMAT_DD_MM_YYYY), smallBold);
         prefaceHeader1.setAlignment(Element.ALIGN_RIGHT);
 
         addEmptyLine(prefaceHeader1, 1);
@@ -151,8 +152,7 @@ public class PDFServiceImpl implements PDFService {
         prefaceBody9.setAlignment(Element.ALIGN_LEFT);
 //        addEmptyLine(prefaceBody9, 1);
 
-        Date date = new Date();
-        Paragraph prefaceBody10 = new Paragraph(Utils.dateToString(date, FORMAT_HH_MM), catFont);
+        Paragraph prefaceBody10 = new Paragraph(Utils.dateToString(LocalDateTime.now(), FORMAT_HH_MM), catFont);
         prefaceBody10.setAlignment(Element.ALIGN_CENTER);
 
         document.add(title);
@@ -196,7 +196,7 @@ public class PDFServiceImpl implements PDFService {
 
         document.add(getBarcodeImageMini(docWriter, clientData.getReservationNumber()));
 
-        Paragraph horaVencimiento = new Paragraph("Hora de vencimiento: " + add1HourToDate(date), catFontTiny);
+        Paragraph horaVencimiento = new Paragraph("Hora de vencimiento: " + add1HourToDate(LocalDateTime.now()), catFontTiny);
         horaVencimiento.setAlignment(Element.ALIGN_RIGHT);
         document.add(horaVencimiento);
         // Start a new page
@@ -204,11 +204,14 @@ public class PDFServiceImpl implements PDFService {
         addTermsAndConditions(document, docWriter);
     }
 
-    public String add1HourToDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.HOUR_OF_DAY, 1);
-        return Utils.dateToString(calendar.getTime(), FORMAT_HH_MM);
+//    public String add1HourToDate(Date date) {
+//        LocalDateTime nextTime = localDateTime.plusHours(1L);
+//        return Utils.dateToString(calendar.getTime(), FORMAT_HH_MM);
+//    }
+
+    public String add1HourToDate(LocalDateTime localDateTime) {
+        LocalDateTime nextTime = localDateTime.plusHours(1L);
+        return Utils.dateToString(nextTime, FORMAT_HH_MM);
     }
 
     public PdfPCell getCell(String text, int alignment) {
@@ -265,7 +268,8 @@ public class PDFServiceImpl implements PDFService {
     }
 
     private String getBarcodeValue(BigDecimal amount) {
-        return "$" + PRICE_SHOES_CODE + "0" + Utils.amountRoundUp(amount);
+        var amountRound = Utils.amountRoundUp(amount);
+        return PRICE_SHOES_CODE + "$" + Utils.leadZero (Long.parseLong(amountRound), 7);
 
     }
 

@@ -67,3 +67,11 @@ aws:
       key: 'AKIAXMA3DQ3WOLYIF4XQ'
     secret:
       key: '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'
+
+web:
+  cors:
+    allowed-origins: "https://www.samvaijesbumeran.viajesbumeran.com"
+    allowed-methods: GET, POST, PATCH, PUT, DELETE, OPTIONS, HEAD
+    max-age: 3600
+    allowed-headers: "Requestor-Type"
+    exposed-headers: "X-Get-Header"

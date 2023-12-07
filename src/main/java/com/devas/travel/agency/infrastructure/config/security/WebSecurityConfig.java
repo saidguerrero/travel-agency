@@ -46,6 +46,7 @@ public class WebSecurityConfig {
 //                        "/**")
                 .permitAll()
                 .requestMatchers("/api/v1/supplier").permitAll()
+                .requestMatchers("/api/v1/upload/uploadFiles").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -113,7 +114,9 @@ public class WebSecurityConfig {
     }
 
     public static void main(String[] args) {
-        System.out.println("pass: " + new BCryptPasswordEncoder().encode("saidg1234"));
+        //jadams
+        //jadams1234
+        System.out.println("pass: " + new BCryptPasswordEncoder().encode("said1234"));
     }
 
 }

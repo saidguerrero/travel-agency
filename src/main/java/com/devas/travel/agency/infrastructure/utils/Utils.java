@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,13 +45,23 @@ public class Utils {
 
     }
 
-    public static String dateToString(Date date, String format) {
+//    public static String dateToString(Date date, String format) {
+//        if (date == null) {
+//            return "N/A";
+//        }
+//        DateFormat formatter = new SimpleDateFormat(format);
+//        return formatter.format(date);
+//
+//    }
+
+    public static String dateToString(LocalDateTime date, String format) {
         if (date == null) {
             return "N/A";
+        } else {
+            DateFormat formatter = new SimpleDateFormat(format);
+            Date dateFormatted = Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
+            return formatter.format(dateFormatted);
         }
-        DateFormat formatter = new SimpleDateFormat(format);
-        return formatter.format(date);
-
     }
 
     public static String localDateTimeToString(LocalDateTime localDateTime, String format) {
@@ -62,11 +73,12 @@ public class Utils {
 
     }
 
-    public static String leadZero(Long number) {
+    public static String leadZero(Long number, int positions) {
         if (number == 0) {
             return "N/A";
         }
-        return String.format("%04d", number);
+        var pos = "%0" + positions + "d";
+        return String.format(pos, number);
     }
 
     public static String amountRoundUp(BigDecimal number) {
@@ -102,7 +114,7 @@ public class Utils {
     }
 
     public static BigDecimal calculateAmountPesos(BigDecimal amountRate, BigDecimal total) {
-      if (amountRate == null || total == null || amountRate.compareTo(BigDecimal.ZERO) < 0 || total.compareTo(BigDecimal.ZERO) < 0) {
+        if (amountRate == null || total == null || amountRate.compareTo(BigDecimal.ZERO) < 0 || total.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Total y tipo de cambio deben ser valores no nulos y no negativos.");
         }
 

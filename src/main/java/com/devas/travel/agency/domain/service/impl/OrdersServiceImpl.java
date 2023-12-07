@@ -360,7 +360,7 @@ public class OrdersServiceImpl implements OrdersService {
                             .travelInfo(order.getTravelInfo())
                             .orderDate(Utils.localDateTimeToString(order.getOrderDate(), Constants.FORMAT_DD_MM_YYYY))
                             .id(order.getOrderId().intValue())
-                            .quotationSheet(Utils.leadZero(order.getOrderId()))
+                            .quotationSheet(Utils.leadZero(order.getOrderId(), 4))
                             .quoteStatus(order.getQuotaStatus().getDescription())
                             .paidStatus(order.getPaymentStatus().getDescription())
                             .contactEmail(order.getContactEmail())
