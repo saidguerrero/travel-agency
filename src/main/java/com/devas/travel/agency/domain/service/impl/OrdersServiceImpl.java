@@ -75,7 +75,7 @@ public class OrdersServiceImpl implements OrdersService {
             orders.setEmergencyContactPhone(clientData.getEmergencyContactPhone());
             orders.setEmergencyContact(clientData.getEmergencyContact());
             orders.setActive(Boolean.TRUE);
-            cityRepository.findByCityId(clientData.getSupplierId()).ifPresent(orders::setCityByCityId);
+            cityRepository.findByCityId(1).ifPresent(orders::setCityByCityId);
             branchRepository.findByBranchId(clientData.getBranchId()).ifPresent(orders::setBranchByBranchId);
             userRepository.findByUserId(clientData.getSalesPersonId()).ifPresent(orders::setSalesPerson);
             supplierRepository.findBySupplierId(clientData.getSupplierId()).ifPresent(orders::setSupplierBySupplierId);
@@ -285,7 +285,7 @@ public class OrdersServiceImpl implements OrdersService {
             ordersRepository.save(order);
             if (PAY_STATUS_ID == statusId) {
                 emailService.sendNotifyOfSaleMail(order);
-                whatsAppService.sendWhatsAppMessageForSale("Se creo una compra para el localzador: " + order.getReservationNumber());
+              //  whatsAppService.sendWhatsAppMessageForSale("Se creo una compra para el localzador: " + order.getReservationNumber());
             }
             return Either.right("Status updated");
 
