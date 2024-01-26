@@ -49,4 +49,8 @@ public class OrderResponse {
 
     private OrderFileResponse orderFileResponse;
 
+    private String idString;
+
+    private String amountWCommission;
+
 }

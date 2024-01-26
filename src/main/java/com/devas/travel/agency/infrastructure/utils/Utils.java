@@ -1,5 +1,7 @@
 package com.devas.travel.agency.infrastructure.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
@@ -31,7 +33,7 @@ public class Utils {
     }
 
     public static BigDecimal stringToBigDecimal(String number) {
-        if (number == null) {
+        if (StringUtils.isEmpty (number)) {
             return BigDecimal.ZERO;
         }
         return new BigDecimal(number.replace(",", ""));
@@ -85,7 +87,7 @@ public class Utils {
         if (number == null) {
             return "N/A";
         }
-        return String.format("%06d", number.setScale(0, RoundingMode.UP).intValue());
+        return  number.setScale(0, RoundingMode.UP).toString();
 
     }
 

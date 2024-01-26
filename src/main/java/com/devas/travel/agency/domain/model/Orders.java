@@ -60,6 +60,9 @@ public class Orders {
     @Column(name="amount_pesos")
     private BigDecimal amountPesos;
 
+    @Column(name="amount_w_comission")
+    private BigDecimal amountWCommission;
+
     @ManyToOne
     @JoinColumn(name = "supplierId", referencedColumnName = "supplier_id", nullable = false)
     private Supplier supplierBySupplierId;

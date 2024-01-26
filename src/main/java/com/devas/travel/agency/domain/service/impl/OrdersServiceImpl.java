@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.devas.travel.agency.infrastructure.constants.Constants.*;
 
@@ -60,6 +59,8 @@ public class OrdersServiceImpl implements OrdersService {
 
     private final EmailService emailService;
 
+    private final FixedChargesService fixedChargesService;
+
     @Override
     public Either<Error, Orders> createOrder(ClientData clientData) {
         try {
@@ -92,6 +93,8 @@ public class OrdersServiceImpl implements OrdersService {
 
             }
             orders.setAmountPesos(Utils.calculateAmountPesos(orders.getAmount(), orders.getExchangeRate()));
+            var fixedCharges = fixedChargesService.findByValue(clientData.getAmount());
+            orders.setAmountWCommission(orders.getAmount().add(fixedCharges.getFixedCommission()));
             ordersRepository.save(orders);
             return Either.right(orders);
 
@@ -370,6 +373,8 @@ public class OrdersServiceImpl implements OrdersService {
                             .hasFiles(hasFiles)
                             .orderFileResponse(orderFileResponse)
                             .statusId(order.getQuotaStatus().getStatusId())
+                            .idString(Utils.leadZero(order.getOrderId(), 4))
+                            .amountWCommission( Utils.addingCommasToBigDecimal(order.getAmountWCommission()))
                             .build();
                 }).toList();
     }

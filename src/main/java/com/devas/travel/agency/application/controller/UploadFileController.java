@@ -7,6 +7,8 @@ import com.devas.travel.agency.application.dto.response.Response;
 import com.devas.travel.agency.domain.service.ReadPDFService;
 import com.devas.travel.agency.domain.service.UploadFilesService;
 import com.devas.travel.agency.infrastructure.utils.ControllerUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
@@ -86,6 +88,14 @@ public class UploadFileController {
 
     @PostMapping("/readQuotePDF")
     public ResponseEntity<Response> readQuote(@RequestBody List<String> files64) {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        try {
+            json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(files64);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        log.info(json);
         return readPDFService.readPDF(files64).fold(
                 ControllerUtils::getResponseError,
                 ControllerUtils::getResponseSuccessOk

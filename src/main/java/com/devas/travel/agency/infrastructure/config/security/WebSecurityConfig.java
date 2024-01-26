@@ -116,7 +116,7 @@ public class WebSecurityConfig {
     public static void main(String[] args) {
         //jadams
         //jadams1234
-        System.out.println("pass: " + new BCryptPasswordEncoder().encode("said1234"));
+        System.out.println("pass: " + new BCryptPasswordEncoder().encode("Angelc2023"));
     }
 
 }

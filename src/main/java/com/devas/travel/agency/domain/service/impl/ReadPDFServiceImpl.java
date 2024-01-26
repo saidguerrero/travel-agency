@@ -2,16 +2,15 @@ package com.devas.travel.agency.domain.service.impl;
 
 import com.devas.travel.agency.application.dto.ClientData;
 import com.devas.travel.agency.application.dto.response.Error;
-import com.devas.travel.agency.domain.service.EuromundoService;
-import com.devas.travel.agency.domain.service.MagnichartersService;
-import com.devas.travel.agency.domain.service.ReadPDFService;
-import com.devas.travel.agency.domain.service.TravelInnService;
+import com.devas.travel.agency.domain.service.*;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,11 +23,17 @@ import java.util.List;
 @Service
 public class ReadPDFServiceImpl implements ReadPDFService {
 
-    private final MagnichartersService magnichartersService;
+    @Autowired
+    @Qualifier("magnichartersServiceImpl")
+    private ProcessPDFService magnichartersService;
 
-    private final EuromundoService euromundoService;
+    @Autowired
+    @Qualifier("euromundoServiceImpl")
+    private ProcessPDFService euromundoService;
 
-    private final TravelInnService travelInService;
+    @Autowired
+    @Qualifier("newTrevelInnServiceImpl")
+    private ProcessPDFService travelInService;
 
     @Override
     public Either<Error, ClientData> readPDF(List<String> files64) {
@@ -38,28 +43,33 @@ public class ReadPDFServiceImpl implements ReadPDFService {
             if (files64 == null || files64.isEmpty()) {
                 return Either.left(Error.builder().message("No se recibieron archivos").build());
             }
-            if (files64.size() == 2) {
-                clientData = readTravelInPDF(files64);
-                if (clientData == null) {
-                    log.info("PDF is not TravelInn");
-                    return Either.left(Error.builder().message("PDF no valido").build());
-                }
-                return Either.right(clientData);
-            }
+//            if (files64.size() == 2) {
+//                clientData = readTravelInPDF(files64);
+//                if (clientData == null) {
+//                    log.info("PDF is not TravelInn");
+//                    return Either.left(Error.builder().message("PDF no valido").build());
+//                }
+//                return Either.right(clientData);
+//            }
             byte[] bytes = Base64.getDecoder().decode(files64.get(0));
             PDDocument document = Loader.loadPDF(bytes);
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
+            String textLower = text.toLowerCase();
             document.close();
-            if (text.contains("Magnicharters")) {
-                clientData = magnichartersService.readMagnichartersPDF(text);
+            if (textLower.contains("magnicharters")) {
+                clientData = magnichartersService.processPDF(text);
 
-            } else if (text.contains("Euromundo")) {
-                clientData = euromundoService.readEuromundoPDF(text);
+            } else if (textLower.contains("euromundo")) {
+                clientData = euromundoService.processPDF(text);
+
+            } else if (text.contains("VIAJES BUMERAN")) {
+                clientData = travelInService.processPDF(text);
 
             } else {
                 log.info("PDF is not Magnicharters");
                 return Either.left(Error.builder().message("PDF no valido").build());
+//                clientData = euromundoService.readEuromundoPDF(text);
 
             }
         } catch (Exception e) {
@@ -85,7 +95,7 @@ public class ReadPDFServiceImpl implements ReadPDFService {
 
         }
         if (builder.indexOf("Travelinn") != -1) {
-            clientData = travelInService.readTravelinnPDF(builder.toString());
+            //  clientData = travelInService.readTravelinnPDF(builder.toString());
 
         }
         return clientData;

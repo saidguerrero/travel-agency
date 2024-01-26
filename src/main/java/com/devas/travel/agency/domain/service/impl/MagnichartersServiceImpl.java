@@ -1,21 +1,23 @@
 package com.devas.travel.agency.domain.service.impl;
 
 import com.devas.travel.agency.application.dto.ClientData;
-import com.devas.travel.agency.domain.service.MagnichartersService;
+import com.devas.travel.agency.domain.service.ProcessPDFService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.StringTokenizer;
 
 @Slf4j
 @Service
+@Qualifier("magnichartersServiceImpl")
 @RequiredArgsConstructor
-public class MagnichartersServiceImpl implements MagnichartersService {
+public class MagnichartersServiceImpl implements ProcessPDFService {
 
     @Override
-    public ClientData readMagnichartersPDF(String text) {
+    public ClientData processPDF(String text) {
         var tokenizer = new StringTokenizer(text, "\n");
         var destino = "";
         var nombre = "";

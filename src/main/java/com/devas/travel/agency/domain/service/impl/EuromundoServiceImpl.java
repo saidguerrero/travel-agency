@@ -1,16 +1,18 @@
 package com.devas.travel.agency.domain.service.impl;
 
 import com.devas.travel.agency.application.dto.ClientData;
-import com.devas.travel.agency.domain.service.EuromundoService;
+import com.devas.travel.agency.domain.service.ProcessPDFService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.StringTokenizer;
 
 @Service
-public class EuromundoServiceImpl implements EuromundoService {
+@Qualifier("euromundoServiceImpl")
+public class EuromundoServiceImpl implements ProcessPDFService {
     @Override
-    public ClientData readEuromundoPDF(String text) {
+    public ClientData processPDF(String text) {
         var tokenizer = new StringTokenizer(text, "\n");
         var destino = "";
         var nombre = "";
@@ -30,7 +32,7 @@ public class EuromundoServiceImpl implements EuromundoService {
             if (token.contains("Nombre")) {
                 nombre = getData(token);
             }
-            if (token.contains("Paquete precio")) {
+            if (token.contains("Paquete precio") || token.contains("Hotel precio")) {
                 String precio = getTotalEuro(token);
                 total = precio.replace(" MXN", "");
 
@@ -56,7 +58,7 @@ public class EuromundoServiceImpl implements EuromundoService {
                 .contactEmail(email)
                 .reservationNumber(reservationNumber)
                 .build();
-        
+
     }
 
     public static String getData(String text) {

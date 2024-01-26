@@ -24,7 +24,7 @@ public class TestPDF {
 
      //   readTravelinnPDF();
 
-        System.out.println( Utils.amountRoundUp(new BigDecimal(100.01)));
+        System.out.println( Utils.amountRoundUp(new BigDecimal(10.01)));
     }
 
     public static ClientData readPDF() {

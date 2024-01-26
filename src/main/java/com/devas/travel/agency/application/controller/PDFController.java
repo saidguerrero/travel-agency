@@ -2,6 +2,8 @@ package com.devas.travel.agency.application.controller;
 
 import com.devas.travel.agency.application.dto.ClientData;
 import com.devas.travel.agency.domain.service.PDFService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,15 @@ public class PDFController {
     @Operation(summary = "generar  pdf ", description = "Metodo para generar un pdf.", tags = {"PDF"})
     public ResponseEntity<byte[]> generatePDF(@RequestBody ClientData clientData) {
         log.info("Generating PDF");
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        try {
+            json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(clientData);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+        log.info(json);
+
         byte[] data = pdfService.generatePDF(clientData);
         HttpHeaders header = new HttpHeaders();
         header.setContentLength(data.length);

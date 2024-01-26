@@ -49,4 +49,8 @@ public class ClientData {
 
     private String exchange;
 
+    private String commissionId;
+
+    private String artId;
+
 }

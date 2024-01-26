@@ -1,6 +1,7 @@
 package com.devas.travel.agency.domain.service.impl;
 
 import com.devas.travel.agency.application.dto.ClientData;
+import com.devas.travel.agency.domain.service.FixedChargesService;
 import com.devas.travel.agency.domain.service.OrdersService;
 import com.devas.travel.agency.domain.service.PDFService;
 import com.devas.travel.agency.infrastructure.utils.Utils;
@@ -26,15 +27,19 @@ public class PDFServiceImpl implements PDFService {
 
     private final OrdersService ordersService;
 
+    private final FixedChargesService fixedChargesService;
+
     private static final Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 36, Font.BOLD);
     private static final Font catFontTiny = new Font(Font.FontFamily.TIMES_ROMAN, 6, Font.NORMAL);
 
     private static final Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
 
+    private static final Font mediumBold = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD);
+
     public static final String FORMAT_DD_MM_YYYY = "dd-MM-yyyy";
     public static final String FORMAT_HH_MM = "HH:mm";
 
-    public static final String PRICE_SHOES_CODE = "1140301";
+    public static final String PRICE_SHOES_CODE = "1140";
 
     public byte[] generatePDF(ClientData clientData) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -97,14 +102,14 @@ public class PDFServiceImpl implements PDFService {
 
     private void addTitlePage(Document document, ClientData clientData, PdfWriter docWriter, Long id)
             throws DocumentException, IOException {
-//        String logoPath = "static/logoVB.png";
-//        ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
-//        InputStream templateInputStream = classLoader.getResourceAsStream(logoPath);
-//        Image templateImage = Image.getInstance(templateInputStream.readAllBytes());
-//        templateImage.setAbsolutePosition(0, 700);
-//        templateImage.scaleAbsolute(500, 100);
-//        templateImage.setAlignment(Element.ALIGN_LEFT);
-//        document.add(templateImage);
+        String logoPath = "static/logoVB.png";
+        ClassLoader classLoader = PDFServiceImpl.class.getClassLoader();
+        InputStream templateInputStream = classLoader.getResourceAsStream(logoPath);
+        Image templateImage = Image.getInstance(templateInputStream.readAllBytes());
+        templateImage.setAbsolutePosition(0, 700);
+        templateImage.scaleAbsolute(60, 60);
+        templateImage.setAlignment(Element.ALIGN_LEFT);
+        document.add(templateImage);
 
         Paragraph title = new Paragraph("Orden de Pago                     " + Utils.leadZero(id, 4), catFont);
         title.setAlignment(Element.ALIGN_LEFT);
@@ -117,8 +122,20 @@ public class PDFServiceImpl implements PDFService {
         Paragraph prefaceTitle = new Paragraph(clientData.getFullName(), catFont);
         prefaceTitle.setAlignment(Element.ALIGN_CENTER);
 
-        Paragraph prefaceTitle2 = new Paragraph("$" + Utils.addingCommasToBigDecimal(clientData.getAmount()), catFont);
-        prefaceTitle2.setAlignment(Element.ALIGN_CENTER);
+        //viaje
+        Paragraph prefaceTrip = new Paragraph("Viaje: $" + Utils.addingCommasToBigDecimal(clientData.getAmount()), smallBold);
+        prefaceTrip.setAlignment(Element.ALIGN_LEFT);
+
+        //cargo
+        var fixedCharges = fixedChargesService.findByValue(clientData.getAmount());
+        Paragraph prefaceCommission = new Paragraph("Cargo: $" + Utils.addingCommasToBigDecimal(fixedCharges.getFixedCommission()), smallBold);
+        prefaceCommission.setAlignment(Element.ALIGN_LEFT);
+
+//        total
+        var total = clientData.getAmount().add(fixedCharges.getFixedCommission());
+        Paragraph prefaceTotal = new Paragraph("Total: $"
+                + Utils.addingCommasToBigDecimal(total), catFont);
+        prefaceTotal.setAlignment(Element.ALIGN_CENTER);
 
         Paragraph prefaceTitle3 = new Paragraph(clientData.getTravelInfo(), catFont);
         prefaceTitle3.setAlignment(Element.ALIGN_CENTER);
@@ -158,7 +175,11 @@ public class PDFServiceImpl implements PDFService {
         document.add(title);
         document.add(prefaceHeader1);
         document.add(prefaceTitle);
-        document.add(prefaceTitle2);
+
+        document.add(prefaceTrip);
+        document.add(prefaceCommission);
+        document.add(prefaceTotal);
+
         document.add(prefaceTitle3);
         document.add(prefaceBody);
         document.add(prefaceBody2);
@@ -171,7 +192,7 @@ public class PDFServiceImpl implements PDFService {
         document.add(prefaceBody9);
         document.add(prefaceBody10);
 
-        document.add(getBarcodeImage(docWriter, clientData.getAmount()));
+        document.add(getBarcodeImage(docWriter, total, clientData.getCommissionId(), clientData.getArtId()));
 
         Chunk glue = new Chunk(new VerticalPositionMark());
         Paragraph signLines = new Paragraph("_______________________");
@@ -195,6 +216,10 @@ public class PDFServiceImpl implements PDFService {
 //        document.add(table);
 
         document.add(getBarcodeImageMini(docWriter, clientData.getReservationNumber()));
+
+        Paragraph happyTravel = new Paragraph("Feliz viaje", mediumBold);
+        happyTravel.setAlignment(Element.ALIGN_CENTER);
+        document.add(happyTravel);
 
         Paragraph horaVencimiento = new Paragraph("Hora de vencimiento: " + add1HourToDate(LocalDateTime.now()), catFontTiny);
         horaVencimiento.setAlignment(Element.ALIGN_RIGHT);
@@ -222,9 +247,9 @@ public class PDFServiceImpl implements PDFService {
         return cell;
     }
 
-    private Image getBarcodeImage(PdfWriter docWriter, BigDecimal amount) {
+    private Image getBarcodeImage(PdfWriter docWriter, BigDecimal amount, String commissionId, String artId) {
         PdfContentByte cb = docWriter.getDirectContent();
-        Barcode128 barcode128 = getBarcode(amount);
+        Barcode128 barcode128 = getBarcode(amount, commissionId, artId);
         Image code128Image = barcode128.createImageWithBarcode(cb, null, null);
         code128Image.scaleAbsolute(150, 75);
         code128Image.setAlignment(Element.ALIGN_CENTER);
@@ -260,16 +285,31 @@ public class PDFServiceImpl implements PDFService {
         return code128Image;
     }
 
-    private Barcode128 getBarcode(BigDecimal amount) {
+    private Barcode128 getBarcode(BigDecimal amount, String commissionId, String artId) {
         Barcode128 barcode128 = new Barcode128();
-        barcode128.setCode(getBarcodeValue(amount));
+        barcode128.setCode(getBarcodeValue(amount, commissionId, artId));
         barcode128.setCodeType(Barcode.CODE128);
         return barcode128;
     }
 
-    private String getBarcodeValue(BigDecimal amount) {
+    private String getBarcodeValue(BigDecimal amount, String commissionId, String artId) {
         var amountRound = Utils.amountRoundUp(amount);
-        return PRICE_SHOES_CODE + "$" + Utils.leadZero (Long.parseLong(amountRound), 7);
+        var len = amountRound.length();
+        var lastThreeChars = "";
+        var firstTwoChars = "";
+        boolean hasMoreThanThreeChars = false;
+        if (len <= 3) {
+            lastThreeChars = amountRound;
+        } else {
+            hasMoreThanThreeChars = true;
+            lastThreeChars = amountRound.substring(len - 3);
+            firstTwoChars = amountRound.substring(0, len - 3);
+        }
+        var getFirstTwoChar = hasMoreThanThreeChars ? Utils.leadZero(Long.parseLong(firstTwoChars), 2) : "00";
+        return "$" + commissionId + Utils.leadZero(Long.parseLong(lastThreeChars), 3)
+                + artId + getFirstTwoChar
+                + PRICE_SHOES_CODE;
+
 
     }
 
