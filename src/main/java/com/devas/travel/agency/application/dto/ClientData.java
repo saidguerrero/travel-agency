@@ -53,4 +53,10 @@ public class ClientData {
 
     private String artId;
 
+    private BigDecimal commission;
+
+    public BigDecimal getCommission() {
+        return this.commission == null ? BigDecimal.ZERO: this.commission;
+
+    }
 }

@@ -22,7 +22,7 @@ spring:
     url: jdbc:mysql://database-bumeran.c6omhk7yegm2.us-east-2.rds.amazonaws.com:3306/bumeran
     #    username: root
     username: bumeran
-    password: 9Ik8IFqnVDmPcFuaFtne
+    password: 9Ik7IFqnVDmPcFuaGtna
     driverClassName: com.mysql.cj.jdbc.Driver
     hikari:
       maxLifeTime: 600000

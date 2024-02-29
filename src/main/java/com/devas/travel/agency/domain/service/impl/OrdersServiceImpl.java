@@ -93,8 +93,9 @@ public class OrdersServiceImpl implements OrdersService {
 
             }
             orders.setAmountPesos(Utils.calculateAmountPesos(orders.getAmount(), orders.getExchangeRate()));
-            var fixedCharges = fixedChargesService.findByValue(clientData.getAmount());
-            orders.setAmountWCommission(orders.getAmount().add(fixedCharges.getFixedCommission()));
+//            var fixedCharges = fixedChargesService.findByValue(clientData.getAmount());
+            var commission = clientData.getCommission().compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : clientData.getCommission();
+            orders.setAmountWCommission(orders.getAmount().add(commission));
             ordersRepository.save(orders);
             return Either.right(orders);
 

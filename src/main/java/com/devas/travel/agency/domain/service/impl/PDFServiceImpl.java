@@ -127,12 +127,13 @@ public class PDFServiceImpl implements PDFService {
         prefaceTrip.setAlignment(Element.ALIGN_LEFT);
 
         //cargo
-        var fixedCharges = fixedChargesService.findByValue(clientData.getAmount());
-        Paragraph prefaceCommission = new Paragraph("Cargo: $" + Utils.addingCommasToBigDecimal(fixedCharges.getFixedCommission()), smallBold);
+        var commission = clientData.getCommission().compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : clientData.getCommission();
+
+        Paragraph prefaceCommission = new Paragraph("Cargo: $" + Utils.addingCommasToBigDecimal(commission), smallBold);
         prefaceCommission.setAlignment(Element.ALIGN_LEFT);
 
 //        total
-        var total = clientData.getAmount().add(fixedCharges.getFixedCommission());
+        var total = clientData.getAmount().add(commission);
         Paragraph prefaceTotal = new Paragraph("Total: $"
                 + Utils.addingCommasToBigDecimal(total), catFont);
         prefaceTotal.setAlignment(Element.ALIGN_CENTER);
