@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -52,5 +54,14 @@ public class OrderResponse {
     private String idString;
 
     private String amountWCommission;
+
+    private int partialPaymentNumber;
+
+    private int paymentTypeId;
+
+    private BigDecimal amountBD;
+
+    private BigDecimal amountDue;
+
 
 }

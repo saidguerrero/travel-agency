@@ -8,6 +8,8 @@ import com.devas.travel.agency.application.dto.response.OrdersAndCurrencies;
 import com.devas.travel.agency.domain.model.Orders;
 import io.vavr.control.Either;
 
+import java.util.List;
+
 public interface OrdersService {
     Either<Error, Orders> createOrder(ClientData clientData);
 
@@ -28,4 +30,7 @@ public interface OrdersService {
     Either<Error, String> updateStatusQuote(int orderId, int statusId);
 
     void updateExpiredOrder();
+
+    List<Orders> getExcelData(int userId, int roleId);
+
 }

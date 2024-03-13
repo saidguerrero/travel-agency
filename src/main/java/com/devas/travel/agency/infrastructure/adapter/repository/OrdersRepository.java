@@ -4,7 +4,9 @@ import com.devas.travel.agency.domain.model.Orders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -53,4 +55,21 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             nativeQuery = true)
     List<Orders> findExpiredOrders(Date date);
 
+    @Modifying
+    @Query(value = "update orders o set o.sale_Id =:saleId where o.order_Id =:id", nativeQuery = true)
+    void updateSaleId(String saleId, int id);
+
+    List<Orders> findBySalesPersonUserId(int userid);
+
+    @Query("SELECT o FROM Orders o " +
+            "LEFT JOIN FETCH o.typeServiceById " +
+            "LEFT JOIN FETCH o.paymentTypeById " +
+            "LEFT JOIN FETCH o.paymentMethodById")
+    List<Orders> findAllOrdersForExcel();
+
+    @Query("SELECT o FROM Orders o " +
+            "LEFT JOIN FETCH o.typeServiceById " +
+            "LEFT JOIN FETCH o.paymentTypeById " +
+            "LEFT JOIN FETCH o.paymentMethodById where o.salesPerson.userId = :userId")
+    List<Orders> findAllOrdersForExcelByUserId(int userId);
 }

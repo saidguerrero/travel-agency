@@ -30,10 +30,11 @@ public class PDFController {
     private final PDFService pdfService;
 
     @PostMapping
-    @Operation(summary = "generar  pdf ", description = "Metodo para generar un pdf.", tags = {"PDF"})
+    @Operation(summary = "generar  Cotizacion ", description = "Metodo para generar un pdf.", tags = {"PDF"})
     public ResponseEntity<byte[]> generatePDF(@RequestBody ClientData clientData) {
-        log.info("Generating PDF");
+        log.info("Generating PDF, ClientData: {}" , clientData);
         ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
         String json = null;
         try {
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(clientData);

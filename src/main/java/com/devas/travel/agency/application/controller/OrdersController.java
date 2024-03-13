@@ -110,6 +110,5 @@ public class OrdersController {
                 ControllerUtils::getResponseError,
                 ControllerUtils::getResponseSuccessOk
         );
-
     }
 }

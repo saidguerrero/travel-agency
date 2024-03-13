@@ -75,6 +75,15 @@ public class Utils {
 
     }
 
+    public static String localDateToString(LocalDate localDate, String format) {
+        if (localDate == null) {
+            return "N/A";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        return localDate.format(formatter);
+
+    }
+
     public static String leadZero(Long number, int positions) {
         if (number == 0) {
             return "N/A";
@@ -126,5 +135,13 @@ public class Utils {
 
     public static List<String> stringsCharSeparatedToList(String string, String separator) {
         return Stream.of(string.split(separator, -1)).map(String::trim).toList();
+    }
+
+    public static String checkEmpty(BigDecimal number) {
+        if (number == null) {
+            return "N/A";
+        }
+        return  number.setScale(0, RoundingMode.UP).toString();
+
     }
 }

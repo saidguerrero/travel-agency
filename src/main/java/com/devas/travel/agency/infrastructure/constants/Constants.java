@@ -16,6 +16,9 @@ public class Constants {
     public static final String MALE = "Masculino";
     public static final String FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
     public static final String FORMAT_DD_MM_YYYY = "dd-MM-yyyy";
+    public static final String FORMATDDMMYYYY = "dd/MM/yyyy";
+
+    public static final String FORMAT_HH_MM_ss = "HH:mm:ss";
     public static final int TOKEN_LENGTH = 6;
     public static final String ENDPOINT = "mail/send";
     public static final String ATTACHMENT = "attachment";

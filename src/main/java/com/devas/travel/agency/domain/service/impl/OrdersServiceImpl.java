@@ -5,6 +5,7 @@ import com.devas.travel.agency.application.dto.PaginatedObjectDTO;
 import com.devas.travel.agency.application.dto.response.Error;
 import com.devas.travel.agency.application.dto.response.*;
 import com.devas.travel.agency.domain.model.Orders;
+import com.devas.travel.agency.domain.model.PartialPayments;
 import com.devas.travel.agency.domain.service.*;
 import com.devas.travel.agency.infrastructure.adapter.repository.*;
 import com.devas.travel.agency.infrastructure.constants.Constants;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -61,6 +63,18 @@ public class OrdersServiceImpl implements OrdersService {
 
     private final FixedChargesService fixedChargesService;
 
+    private final TypeServiceService typeServiceService;
+
+    private final PaymentMethodService paymentMethodService;
+
+    private final PaymentTypeService paymentTypeService;
+
+    private final TypeServiceRepository typeServiceRepository;
+
+    private final PaymentMethodRepository paymentMethodRepository;
+
+    private final PaymentTypeRepository paymentTypeRepository;
+
     @Override
     public Either<Error, Orders> createOrder(ClientData clientData) {
         try {
@@ -75,7 +89,7 @@ public class OrdersServiceImpl implements OrdersService {
             orders.setEmergencyContactPhone(clientData.getEmergencyContactPhone());
             orders.setEmergencyContact(clientData.getEmergencyContact());
             orders.setActive(Boolean.TRUE);
-            cityRepository.findByCityId(1).ifPresent(orders::setCityByCityId);
+            cityRepository.findByCityId(clientData.getCityId()).ifPresent(orders::setCityByCityId);
             branchRepository.findByBranchId(clientData.getBranchId()).ifPresent(orders::setBranchByBranchId);
             userRepository.findByUserId(clientData.getSalesPersonId()).ifPresent(orders::setSalesPerson);
             supplierRepository.findBySupplierId(clientData.getSupplierId()).ifPresent(orders::setSupplierBySupplierId);
@@ -83,6 +97,7 @@ public class OrdersServiceImpl implements OrdersService {
                 orders.setQuotaStatus(status);
                 orders.setPaymentStatus(status);
             });
+
             orders.setSubtotal(Utils.calculateSubtotal(orders.getAmount(), new BigDecimal("0.16")));
             orders.setExchange(clientData.getExchange());
             if (!"MXN".equals(clientData.getExchange())) {
@@ -96,7 +111,27 @@ public class OrdersServiceImpl implements OrdersService {
 //            var fixedCharges = fixedChargesService.findByValue(clientData.getAmount());
             var commission = clientData.getCommission().compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : clientData.getCommission();
             orders.setAmountWCommission(orders.getAmount().add(commission));
+
+// cambios para fase 1.2
+            typeServiceRepository.findByServiceId(clientData.getServiceId())
+                    .ifPresent(orders::setTypeServiceById);
+            paymentMethodRepository.findByPaymentMethodId(clientData.getPaymentMethodId())
+                    .ifPresent(orders::setPaymentMethodById);
+            paymentTypeRepository.findByPaymentTypeId(clientData.getPaymentTypeId())
+                    .ifPresent(orders::setPaymentTypeById);
+
+            orders.setHotel(clientData.getHotel());
+            orders.setNumberOfPassengers(clientData.getNumberOfPassengers());
+            orders.setSalesNoteNumber(clientData.getSalesNoteNumber());
+            orders.setMembershipNumber(clientData.getMembershipNumber());
+            orders.setStartDate(clientData.getStartDate());
+            orders.setEndDate(clientData.getEndDate());
+            orders.setPaydayLimit(LocalDate.now().plusMonths(2));
+            var temp = ordersRepository.save(orders);
+            orders.setSaleId("VM" + Utils.leadZero(temp.getOrderId(), 5));
             ordersRepository.save(orders);
+
+//            ordersRepository.updateSaleId("VM" + Utils.leadZero(temp.getOrderId(), 4), temp.getOrderId().intValue());
             return Either.right(orders);
 
         } catch (Exception e) {
@@ -173,6 +208,9 @@ public class OrdersServiceImpl implements OrdersService {
                     .suppliers(supplierService.getSuppliers().get())
                     .salesPersons(userService.getUserByRole(List.of(SALES_PERSON_ID)).get())
                     .supplierItems(supplierService.getSupplierItems())
+                    .typeServices(typeServiceService.getTypeServices().get())
+                    .paymentMethods(paymentMethodService.getPaymentMethods().get())
+                    .paymentTypes(paymentTypeService.getPaymentTypes().get())
                     .build();
             return Either.right(orderItems);
 
@@ -286,7 +324,7 @@ public class OrdersServiceImpl implements OrdersService {
             ordersRepository.save(order);
             if (PAY_STATUS_ID == statusId) {
                 emailService.sendNotifyOfSaleMail(order);
-              //  whatsAppService.sendWhatsAppMessageForSale("Se creo una compra para el localzador: " + order.getReservationNumber());
+                //  whatsAppService.sendWhatsAppMessageForSale("Se creo una compra para el localzador: " + order.getReservationNumber());
             }
             return Either.right("Status updated");
 
@@ -352,6 +390,14 @@ public class OrdersServiceImpl implements OrdersService {
                                 .idConditionsOfServices(idConditionsOfServices)
                                 .build();
                     }
+                    BigDecimal amountDue = new BigDecimal(0);
+                    if (order.getPartialPayments() != null && !order.getPartialPayments().isEmpty()) {
+                        BigDecimal suma = order.getPartialPayments().stream()
+                                .map(PartialPayments::getPaymentAmount)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        amountDue = order.getAmount().subtract(suma);
+
+                    }
 
                     return OrderResponse.builder()
                             .fullName(order.getFullName())
@@ -375,8 +421,21 @@ public class OrdersServiceImpl implements OrdersService {
                             .orderFileResponse(orderFileResponse)
                             .statusId(order.getQuotaStatus().getStatusId())
                             .idString(Utils.leadZero(order.getOrderId(), 4))
-                            .amountWCommission( Utils.addingCommasToBigDecimal(order.getAmountWCommission()))
+                            .amountWCommission(Utils.addingCommasToBigDecimal(order.getAmountWCommission()))
+                            .partialPaymentNumber(order.getPartialPayments().size())
+                            .paymentTypeId(order.getPaymentTypeById() != null ? order.getPaymentTypeById().getPaymentTypeId() : 0)
+                            .amountBD(order.getAmount())
+                            .amountDue(amountDue)
                             .build();
                 }).toList();
+    }
+
+    public List<Orders> getExcelData(int userId, int roleId) {
+        if (roleId == 1 || roleId == 33) {
+            return ordersRepository.findAllOrdersForExcel();
+
+        }
+        return ordersRepository.findAllOrdersForExcelByUserId(userId);
+
     }
 }

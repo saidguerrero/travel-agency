@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -54,6 +56,26 @@ public class ClientData {
     private String artId;
 
     private BigDecimal commission;
+
+    private String saleId;
+
+    private Integer serviceId;
+
+    private Integer paymentTypeId;
+
+    private Integer paymentMethodId;
+
+    private String hotel;
+
+    private String numberOfPassengers;
+
+    private String salesNoteNumber;
+
+    private String membershipNumber;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
 
     public BigDecimal getCommission() {
         return this.commission == null ? BigDecimal.ZERO: this.commission;
